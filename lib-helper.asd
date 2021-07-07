@@ -4,7 +4,7 @@
   :version "0.0.1"
   :author "Albus M Piroglu <mattapiroglu@gmail.com>"
   :maintainer "Albus M Piroglu <mattapiroglu@gmail.com>"
-  :licence "Public Domain -tbd"
+  :licence "MIT"
   :depends-on ()
   :components ((:file "home-package")
                (:file "package-helpers" :depends-on ("home-package"))

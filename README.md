@@ -91,34 +91,24 @@ in some hierarchical package names.
 
 notes from my code:
 
-	;;;
-	;;; Packages are not hierarchical, but this can be implemented.
-	;;; an example hierarchical namespace approach is in:
-	;;;	  ../downloads/relative-package.lisp
-	;;; use / improve if needed. read and learn if not.
-	;;; todo:
-	;;;  1. D. check for missing symbols from cl - there has been an issue
-	;;;	    with substring, causing missing items
-	;;;  2. Looks good now, refine while using.
 	#|
 	some notes on getting the diff of the :cl symbols to the symbols in buffer file:
 	
 	(with-open-file (out "../../mylib/cl-user-syms2.lisp" :direction :output)
-	(do-symbols (s) 
-	(unless (search (symbol-name s) f1str :test #'equalp) 
-	(format out "\"~a\"~%" s))))
+	  (do-symbols (s) 
+	    (unless (search (symbol-name s) f1str :test #'equalp) 
+	    (format out "\"~a\"~%" s))))
 	
 	(with-open-file (out "../../mylib/syms-diff.lisp" :direction :output
 	:if-exists :supersede)
-	(do-symbols (s) 
-	(unless (search
-	(concatenate 'string "\"" (symbol-name s) "\"")
-	f1str :test #'equalp) 
-	(format out "\"~a\"~%" s))))
+	  (do-symbols (s) 
+	    (unless (search (concatenate 'string "\"" (symbol-name s) "\"")
+	                    f1str :test #'equalp) 
+        (format out "\"~a\"~%" s))))
 	
 	(defparameter f1ls (with-open-file (in "../../mylib/cl-user-syms.lisp")
 	(loop for line = (read-line in nil nil) while line
-	collecting line)))
+          collecting line)))
 	(defparameter f1str (reduce (lambda (a b) (concatenate 'string a b)) f1ls))
 	
 	|#
@@ -130,11 +120,11 @@ notes from my code:
 Turn the base code into a package.
 
 ## References
-1. file:///media/data/amp_workspace/Progs/lispworks/lib/7-1-0-0/manual/online/CLHS/Front/X_AllSym.htm
-2. file:///media/data/amp_workspace/Progs/lispworks/lib/7-1-0-0/manual/online/CLHS/Front/Contents.htm
+1. http://www.lispworks.com/documentation/lw50/CLHS/Front/X_AllSym.htm
+2. http://www.lispworks.com/documentation/lw50/CLHS/Front/Contents.htm
 
 # License
 
 Copyright (c) [2021] [Albus M Piroglu]
 
-Licensed under the [none-yet] License.
+Licensed under the MIT License.
