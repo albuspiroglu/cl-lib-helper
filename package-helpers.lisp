@@ -24,7 +24,7 @@
     (dolist (p (symbol-value pd))
       (delete-package (first p))))
   (delete-package "LIB~")
-  (asdf/system-registry:clear-system :lib-helper))
+  (asdf:clear-system :lib-helper))
 
 (defun define-sub-package-syms (p package-details)
   "p: list of (pkg-name description (syms*))"
