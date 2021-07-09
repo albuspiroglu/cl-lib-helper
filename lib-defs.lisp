@@ -1,7 +1,7 @@
 (in-package "LIB~")
 
 (defvar *lib-package-details*
-  '(("LIB" "NIL"
+  '(("LIB" "Top level"
      ())
     ("LIB.FUN" "Functions section in CL Cookbook"
      (("DEFUN" "CL")
@@ -30,9 +30,9 @@
       ("FBOUNDP" "CL")
       ("CONSTANTLY" "CL")
       ))
-    ("LIB.CONT" "Containers parent package"
+    ("LIB.CONT" "Containers"
      ())
-    ("LIB.CONT.LIST" "Container's list related items."
+    ("LIB.CONT.LIST" "Lists"
      (("LIST*" "CL")
       ("LIST" "CL")
       ("CONS" "CL")
@@ -82,7 +82,7 @@
       ("ENDP" "CL")
       ("MEMBER" "CL")
       ))
-    ("LIB.CONT.LIST.ACCESS" "List access functions"
+    ("LIB.CONT.LIST.ACCESS" "List access"
      (("CAR" "CL")
       ("CDR" "CL")
       ("CDAR" "CL")
@@ -250,10 +250,10 @@
       ("SET-EXCLUSIVE-OR" "CL")
       ("SUBSETP" "CL")
       ))
-    ("LIB.PATTERNS" "Pattern mapping and matching"
+    ("LIB.PATTERNS" "Patterns"
      (("DESTRUCTURING-BIND" "CL")
       ))
-    ("LIB.STR" "String manipulation"
+    ("LIB.STR" "Strings"
      (("PARSE-INTEGER" "CL")
       ("FORMAT" "CL")
       ("PPRINT-LINEAR" "CL")
@@ -299,7 +299,7 @@
       ("STRING-EQUAL" "CL")
       ("STRING-NOT-GREATERP" "CL")
       ))
-    ("LIB.CHAR" "Character manipulation"
+    ("LIB.CHAR" "Characters"
      (("CHAR-UPCASE" "CL")
       ("CHAR-DOWNCASE" "CL")
       ("ALPHA-CHAR-P" "CL")
@@ -325,7 +325,7 @@
       ("CHAR-NOT-GREATERP" "CL")
       ("CHAR-GREATERP" "CL")
       ))
-    ("LIB.PKG" "Package management"
+    ("LIB.PKG" "Package"
      (("PACKAGE" "CL")
       ("DEFPACKAGE" "CL")
       ("FIND-PACKAGE" "CL")
@@ -353,7 +353,7 @@
       ("WITH-PACKAGE-ITERATOR" "CL")
       ("EXPORT" "CL")
       ))
-    ("LIB.PKG.SYMS" "Package symbol management"
+    ("LIB.PKG.SYMS" "Symbol management"
      (("DO-ALL-SYMBOLS" "CL")
       ("DO-SYMBOLS" "CL")
       ("DO-EXTERNAL-SYMBOLS" "CL")
@@ -375,7 +375,7 @@
       ("BOUNDP" "CL")
       ("FMAKUNBOUND" "CL")
       ))
-    ("LIB.LANG" "Language lib"
+    ("LIB.LANG" "CL Language"
      (
       ))
     ("LIB.LANG.COMPILE" "Language/compilation"
@@ -418,7 +418,7 @@
       ("PROG2" "CL")
       ("DO*" "CL")
       ))
-    ("LIB.LANG.DEFN" "Definitions"
+    ("LIB.LANG.DEFN" "Lang definitions"
      (("LET" "CL")
       ("LET*" "CL")
       ("FLET" "CL")
@@ -433,7 +433,7 @@
       ("DEFINE-MODIFY-MACRO" "CL")
       ("DEFINE-COMPILER-MACRO" "CL")
       ))
-    ("LIB.LANG.BASE" "Language basic constructs"
+    ("LIB.LANG.BASE" "Lang basic constructs"
      (("EQUAL" "CL")
       ("COND" "CL")
       ("SET" "CL")
@@ -493,7 +493,7 @@
       ("MULTIPLE-VALUES-LIMIT" "CL")
       ("CALL-ARGUMENTS-LIMIT" "CL")
       ))
-    ("LIB.LANG.MACRO" "Macro functions"
+    ("LIB.LANG.MACRO" "Macros"
      (("COMPILER-MACRO-FUNCTION" "CL")
       ("COMPILER-MACRO" "CL")
       ("&BODY" "CL")
@@ -516,7 +516,7 @@
       ("GET-INTERNAL-RUN-TIME" "CL")
       ("TIME" "CL")
       ))
-    ("LIB.REPL" "Repl and development helpers"
+    ("LIB.REPL" "Repl and devhelp"
      (("+" "CL")
       ("++" "CL")
       ("+++" "CL")
@@ -604,7 +604,7 @@
       ("INVOKE-DEBUGGER" "CL")
       ("TIME" "CL")
       ))
-    ("LIB.IO" "Input output IO functions"
+    ("LIB.IO" "I/O"
      (("*STANDARD-OUTPUT*" "CL")
       ("*STANDARD-INPUT*" "CL")
       ("*ERROR-OUTPUT*" "CL")
@@ -699,10 +699,10 @@
       ("*ERROR-OUTPUT*" "CL")
       ("*STANDARD-OUTPUT*" "CL")
       ))
-    ("LIB.OS" "Operating system OS"
+    ("LIB.OS" "Operating system"
      (
       ))
-    ("LIB.OS.PATH" "OS path functions"
+    ("LIB.OS.PATH" "OS path"
      (("PATHNAME" "CL")
       ("DIRECTORY" "CL")
       ("DELETE-FILE" "CL")
@@ -742,7 +742,7 @@
       ("MAKE-PATHNAME" "CL")
       ("LOGICAL-PATHNAME" "CL")
       ))
-    ("LIB.MATH.NUM.LIMITS" "Mathematics numeric limits"
+    ("LIB.MATH.NUM.LIMITS" "Math numeric limits"
      (("SHORT-FLOAT-EPSILON" "CL")
       ("SINGLE-FLOAT-NEGATIVE-EPSILON" "CL")
       ("SINGLE-FLOAT-EPSILON" "CL")
@@ -779,7 +779,7 @@
       ("LEAST-NEGATIVE-SINGLE-FLOAT" "CL")
       ("MOST-POSITIVE-SINGLE-FLOAT" "CL")
       ))
-    ("LIB.MATH.NUM.TYPES" "Mathematics numeric types"
+    ("LIB.MATH.NUM.TYPES" "Math numeric types"
      (("SHORT-FLOAT" "CL")
       ("UPGRADED-COMPLEX-PART-TYPE" "CL")
       ("COMPLEXP" "CL")
@@ -805,7 +805,7 @@
       ("EVENP" "CL")
       ("FIXNUM" "CL")
       ))
-    ("LIB.MATH.NUM" "Mathematics numeric"
+    ("LIB.MATH.NUM" "Math numeric"
      (("RATIONALIZE" "CL")
       ("INCF" "CL")
       ("INTEGER-LENGTH" "CL")
@@ -857,7 +857,7 @@
       ("LDB" "CL")
       ("DPB" "CL")
       )) 
-    ("LIB.MATH.LOGICAL" "Mathematic logical arithmetic"
+    ("LIB.MATH.LOGICAL" "Boolean arithmetic"
      (("BOOLE" "CL")
       ("BOOLE-1" "CL")
       ("BOOLE-IOR" "CL")
@@ -901,7 +901,7 @@
       ("LOGEQV" "CL")
       ("LOGAND" "CL")
       ))
-    ("LIB.MATH" "Math lib."
+    ("LIB.MATH" "Math"
      (
       ))
     ("LIB.MATH.FUNCTIONS" "Math functions"

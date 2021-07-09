@@ -79,6 +79,8 @@ If you change lib/std-defs.lisp and want to update your current lisp image, just
     (lib:delete-this-system)
     (asdf:load-system :lib-helper)
 
+## Contributing
+The complete hierarchy is contained in a tree in either lib-defs.lisp (std + 3rd party) or std-defs.lisp (ansi symbols only). If you want to change / add libs, modifying these lists will be enough.
 
 ## TODO
 

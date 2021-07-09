@@ -93,25 +93,20 @@
     (print-libs s)))
 
 (defun packages-aux (package-tree &key (stream *standard-output*))
-  "Print std package names in first hierachical categorization."
+  "Print package names in first hierachical categorization."
   (dolist (p package-tree)
-    (format stream "~a~20,0t: " (first p))
-    (dolist (p1 (get-sub-packages (first p) package-tree))
-      (format stream "~a " p1))
-    (format stream "~%")))
+    (let* ((p-subs (get-sub-packages (first p) package-tree))
+           (line-length 80)
+           (separation 27)
+           (cursor separation))
+      (when p-subs
+        (format stream "~a~25,0t: ~a " (second p) (first p))
+        (dolist (p1 p-subs)
+          (when (> cursor (- line-length separation))
+            (setf cursor separation)
+            (format stream "~%~25,0t  "))
+          (format stream "~a " p1)
+          (incf cursor (1+ (length p1))))
+        (format stream "~%")
+        (terpri stream)))))
 
-#|
-I may need to improve the packages-aux function above, to have
-a print similar to below.
-
-sequences: LIB-LIST LIB-LIST-ACCESS LIB-ALIST LIB-ARRAY LIB-SEQUENCE LIB-SETS
-strings  : LIB-STR-COMP LIB-STR
-language : LIB-LANG LIB-LANG-COMPILE LIB-LANG-BLOCKS LIB-LANG-DEFN
-functions: LIB-FUNCTIONS LIB-PATTERNS
-datetime : LIB-DATETIME
-packages : LIB-PACKAGES
-io, os   : LIB-IO LIB-OS LIB-REPL
-math     : LIB-NUM LIB-MATH-LOGICAL LIB-MATH
-types    : LIB-CLOS LIB-TYPES LIB-CONDITION-TYPES LIB-CONDITIONS
-
- |#
