@@ -74,6 +74,11 @@ After finding what you were looking for, you can either use the symbol from the 
 
 #### (lib:delete-this-system), (std:delete-this-system)
 Deletes all the LIB.* and STD.* packages and does an asdf:clear-system :lib-helper.
+If you change lib/std-defs.lisp and want to update your current lisp image, just do a:
+
+    (lib:delete-this-system)
+    (asdf:load-system :lib-helper)
+
 
 ## TODO
 
