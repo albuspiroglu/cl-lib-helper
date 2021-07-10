@@ -6,9 +6,10 @@
            "SETUP-PACKAGES"
            "*CLHS-CHAPTERS*"
            "DELETE-SYSTEM-AUX"
-           "*STD-PACKAGE-DETAILS*"
-           "*LIB-PACKAGE-DETAILS*"
-           "PACKAGES-AUX"))
+           "*STD-PACKAGE-TREE*"
+           "*LIB-PACKAGE-TREE*"
+           "PACKAGES-AUX"
+           "*SYSTEM-TABLE*"))
 
 (in-package "LIB~")
 

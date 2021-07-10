@@ -61,6 +61,19 @@ e.g. try to get to lib.str.comp:*
 
 After finding what you were looking for, you can either use the symbol from the package you found, or use it directly from its original package. The primary purpose of this library is to let you find things, not to alter your coding convention (although using the package names of this library might improve readability - although this claim is not tested yet).
 
+#### Lazy system loading
+Third party systems are not listed as system dependencies in .asd file, but instead dynamically loaded as requested. For example, alexandria is not a dependency, but their symbols are in the lib-defs.lisp, and they are interned with symbol names ending with a ~.
+
+When you want to use, e.g. alexandria:cswitch, you should first find and call:
+
+```
+(lib.lang.flow:cswitch~)
+```
+
+Which will load the corresponding system, alexandria, then intern the cswitch symbol at the same place and unintern the cswitch~. And you can call the previous command without ~ at the end.
+
+Btw, system loading is done by asdf, thus you should already have the corresponding system downloaded and asdf-reachable.
+
 ### Utilities
 
 #### (lib:apropos), (std:apropos)
@@ -78,6 +91,10 @@ If you change lib/std-defs.lisp and want to update your current lisp image, just
 
     (lib:delete-this-system)
     (asdf:load-system :lib-helper)
+    
+## Implementations tested
+Working for: clisp 2.49, lispworks 7.1
+Possibly: sbcl
 
 ## Contributing
 The complete hierarchy is contained in a tree in either lib-defs.lisp (std + 3rd party) or std-defs.lisp (ansi symbols only). If you want to change / add libs, modifying these lists will be enough.

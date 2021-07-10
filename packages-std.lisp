@@ -11,7 +11,7 @@ eval during compile or load or execute time.
   (in-package "LIB~")
 
   (unless (find-package "STD")
-    (lib~:setup-packages lib~:*std-package-details*)
+    (lib~:setup-packages lib~:*std-package-tree*)
     (use-package :cl (find-package "STD")))
 
   (in-package "STD")
@@ -24,18 +24,17 @@ eval during compile or load or execute time.
     (let ((f (intern "GET-PACKAGE-NAMES" pkg)))
       (setf (symbol-function f)
             (lambda ()
-              (lib~:get-package-names-aux lib~:*std-package-details*))))
+              (lib~:get-package-names-aux lib~:*std-package-tree*))))
     (let ((f (intern "PACKAGES" pkg)))
       (setf (symbol-function f)
-            (lambda (&key (stream *standard-output*)
-                          (show-packages nil))
-              (lib~:packages-aux lib~:*std-package-details*
+            (lambda (&key (stream *standard-output*))
+              (lib~:packages-aux lib~:*std-package-tree*
                                  :stream stream)))))
 
   )
 
 (eval-when (:execute :load-toplevel)
-  (push 'lib~::*std-package-details* lib~:*package-lists*))
+  (push 'lib~::*std-package-tree* lib~:*package-lists*))
 
 (in-package "STD")
 (export '(DELETE-THIS-SYSTEM GET-PACKAGE-NAMES PACKAGES) (find-package "STD"))
