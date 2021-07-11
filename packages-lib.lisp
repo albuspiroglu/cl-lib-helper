@@ -11,7 +11,9 @@ eval during compile or load or execute time.
   (in-package "LIB~")
 
   (unless (find-package "LIB")
-    (lib~:setup-packages lib~:*lib-package-tree*)
+    (lib~:setup-packages lib~::*lib-package-tree*)
+    (format t "=====Loaded lib:*, total ~a symbols.=====~%"
+            (lib~:symbol-count lib~:*lib-package-tree*))
     (use-package :cl (find-package "LIB")))
     
   (in-package "LIB")
@@ -29,13 +31,21 @@ eval during compile or load or execute time.
       (setf (symbol-function f)
             (lambda (&key (stream *standard-output*))
               (lib~:packages-aux lib~:*lib-package-tree*
-                                 :stream stream)))))
-
+                                 :stream stream))))
+    (let ((f (intern "SYMBOL-COUNT" pkg)))
+      (setf (symbol-function f)
+            (lambda ()
+              (lib~:symbol-count lib~:*lib-package-tree*))))
+    )
   )
 
 (eval-when (:execute :load-toplevel)
-  (push 'lib~:*lib-package-tree* lib~:*package-lists*))
+  (pushnew 'lib~:*lib-package-tree* lib~:*package-lists*))
 
 (in-package "LIB")
-(export '(DELETE-THIS-SYSTEM GET-PACKAGE-NAMES PACKAGES) (find-package "LIB"))
+(export '(DELETE-THIS-SYSTEM
+          GET-PACKAGE-NAMES
+          PACKAGES
+          SYMBOL-COUNT)
+        (find-package "LIB"))
 

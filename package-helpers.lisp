@@ -15,7 +15,7 @@
 (defun %create-packages (package-tree)
   "Create each package, without any detail such as import, use etc."
   (dolist (p package-tree)
-    (setf (documentation (make-package (first p)) t)
+    (setf (documentation (make-package (first p) :use '("COMMON-LISP")) t)
           (second p))))
 
 (defun %define-subpackages (package-tree)
@@ -25,7 +25,10 @@
 (defun delete-system-aux ()
   (dolist (pd lib~:*package-lists*)
     (dolist (p (symbol-value pd))
-      (delete-package (first p))))
+      (handler-case
+          (delete-package (first p))
+        (error (c)
+          (format t "Error deleting package ~a.~%" (first p))))))
   (delete-package "LIB~")
   (asdf:clear-system :lib-helper))
 
@@ -72,7 +75,7 @@ Intern a symbol, and return that symbol name (package relative).
 "
   (let ((new-sym-name (if (zerop sym-cnt)
                           sym-name
-                        (concatenate 'string sym-name (write-to-string sym-cnt)))))
+                        (concatenate 'string sym-name "." (write-to-string sym-cnt)))))
     (if (%loaded? (first sys))
         (%intern-now new-sym-name
                      (find-symbol sym-name (find-package (second sys)))
@@ -97,7 +100,7 @@ Intern a symbol, and return that symbol name (package relative).
 (defun %intern-now (sym-name sym to-pkg)
   (if (equalp sym-name (symbol-name sym))
       (progn
-        (import sym to-pkg)
+        (shadowing-import sym to-pkg)
         sym)
     (let ((new-sym (intern sym-name to-pkg)))
       (setf (symbol-value new-sym) sym)
@@ -168,6 +171,15 @@ delete the symbol with the ~ at the end.
         (format stream "~%")
         (terpri stream)))))
 
+(defun symbol-count (package-tree)
+  "Return the count of unique symbols within the tree."
+  (let (flat-syms)
+    (dolist (p package-tree)
+      (setq flat-syms (append flat-syms (third p))))
+    (delete-duplicates flat-syms :test #'equalp)
+    (length flat-syms)))
+
+  
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; some dev helpers:
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

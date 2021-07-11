@@ -12,6 +12,8 @@ eval during compile or load or execute time.
 
   (unless (find-package "STD")
     (lib~:setup-packages lib~:*std-package-tree*)
+    (format t "====Loaded std:*, total ~a symbols.====~%"
+            (lib~:symbol-count lib~:*std-package-tree*))
     (use-package :cl (find-package "STD")))
 
   (in-package "STD")
@@ -29,13 +31,20 @@ eval during compile or load or execute time.
       (setf (symbol-function f)
             (lambda (&key (stream *standard-output*))
               (lib~:packages-aux lib~:*std-package-tree*
-                                 :stream stream)))))
-
+                                 :stream stream))))
+    (let ((f (intern "SYMBOL-COUNT" pkg)))
+      (setf (symbol-function f)
+            (lambda ()
+              (lib~:symbol-count lib~:*std-package-tree*))))
+    )
   )
 
-(eval-when (:execute :load-toplevel)
-  (push 'lib~::*std-package-tree* lib~:*package-lists*))
+(eval-when (:compile-toplevel :execute :load-toplevel)
+  (pushnew 'lib~::*std-package-tree* lib~:*package-lists*))
 
 (in-package "STD")
-(export '(DELETE-THIS-SYSTEM GET-PACKAGE-NAMES PACKAGES) (find-package "STD"))
+(export '(DELETE-THIS-SYSTEM
+          GET-PACKAGE-NAMES
+          PACKAGES
+          SYMBOL-COUNT))
 

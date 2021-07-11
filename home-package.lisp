@@ -9,12 +9,13 @@
            "*STD-PACKAGE-TREE*"
            "*LIB-PACKAGE-TREE*"
            "PACKAGES-AUX"
-           "*SYSTEM-TABLE*"))
+           "*SYSTEM-TABLE*"
+           "SYMBOL-COUNT"))
 
 (in-package "LIB~")
 
-(defvar *package-lists* nil "list of used package-details")
 
 (eval-when (:compile-toplevel :execute :load-toplevel)
-  (setf *package-lists* nil))
+  (defparameter *package-lists* nil "list of used package-details")
+  (defvar *system-table* (make-hash-table :test 'equalp)))
 

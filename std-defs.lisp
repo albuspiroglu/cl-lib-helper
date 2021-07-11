@@ -453,6 +453,8 @@
       ))
     ("STD.LANG.BASE" "Lang basic constructs"
      (("EQUAL" (NIL "CL"))
+      ("T" (NIL "CL"))
+      ("NIL" (NIL "CL"))
       ("COND" (NIL "CL"))
       ("SET" (NIL "CL"))
       ("OR" (NIL "CL"))
@@ -460,8 +462,6 @@
       ("EQ" (NIL "CL"))
       ("AND" (NIL "CL"))
       ("NOT" (NIL "CL"))
-      ("T" (NIL "CL"))
-      ("NIL" (NIL "CL"))
       ("EVAL" (NIL "CL"))
       ("CASE" (NIL "CL"))
       ("QUOTE" (NIL "CL"))
