@@ -74,13 +74,19 @@ Which will load the corresponding system, alexandria, then intern the cswitch sy
 
 Btw, system loading is done by asdf, thus you should already have the corresponding system downloaded and asdf-reachable.
 
+#### Name non-shadowing
+If a symbol is exported from multiple systems/packages, then they are added to the symbols package list (in lib-defs.lisp) and for each package a symbol.N is created (except the first one is the symbol name).
+
 ### Utilities
 
 #### (lib:apropos), (std:apropos)
 [TBD] Searches in the lib-* family.
 
 #### (lib:packages), (std:packages)
-[TBD - needs update with current hierarchy] If you want to see the list of packages, perhaps printed in an easier to see way, then you can call this.
+See the list of packages, printed with some grouping.
+
+#### (lib:get-package-names), (std:get-package-names)
+Get the list of package names under lib. or std.
 
 #### (std:clhs-sections)
 [TBD] Prints a mapping from clhs sections to lib-* top level.
@@ -93,8 +99,7 @@ If you change lib/std-defs.lisp and want to update your current lisp image, just
     (asdf:load-system :lib-helper)
     
 ## Implementations tested
-Working for: clisp 2.49, lispworks 7.1
-Possibly: sbcl
+Working for: sbcl2.1, clisp 2.49, lispworks 7.1
 
 ## Contributing
 The complete hierarchy is contained in a tree in either lib-defs.lisp (std + 3rd party) or std-defs.lisp (ansi symbols only). If you want to change / add libs, modifying these lists will be enough.
@@ -102,9 +107,7 @@ The complete hierarchy is contained in a tree in either lib-defs.lisp (std + 3rd
 ## TODO
 
 - [ ] CLHS categorisation: Using the full symbol index page (1), for each symbol, find the sections that mention this symbol in sections pages (2), and form the library packages corresponding to the sections.
-- [ ] Add well known asdf libraries to the lib-* categories (asdf, uiop, alexandria, ppcre, containers, etc.). Do this continuosly as you learn libraries.
-- [ ] If you don't want to load all systems prior to libs system, then wrap the not-yet-loaded systems' symbols with symbols of the same name + ~ appended to the end. Calling the \*~ version will then load the system, export all the actual functions in the corresponding hierarchy, and delete all the \*~ functions (unintern), printing a friendly message about what has happened leading the user to call the actual symbol without the ~ at the end.
-- [ ] Find a similar to previous way to handle same-name symbols from different packages.
+- Add(ing) well known asdf libraries to the lib-* categories (~~asdf-uiop~~, ~~alexandria~~, ppcre, containers, etc.). Do this continuosly as you learn libraries.
 
 
 ## Improvement ideas
