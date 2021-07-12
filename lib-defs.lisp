@@ -1870,7 +1870,7 @@ loaded: bool
 ")
   |#
 
-
+  ;; add each system as: ("system-name" load-at-startup)
   (let ((system-table '(("alexandria" nil)
                         ("asdf" t)
                         ("cl-ppcre" nil))))

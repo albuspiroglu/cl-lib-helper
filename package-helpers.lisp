@@ -72,7 +72,7 @@ top comment of *lib-package-tree* for details.
 
 (defun %maybe-load (sys-name)
   "asdf load the system if necessary."
-  (if (%already-loaded sys-name)
+  (if (%loaded? sys-name)
       nil
     (progn
       (asdf:load-system sys-name)
@@ -129,9 +129,10 @@ e.g. from a list of: (\"CAR\" (NIL \"CL\") (\"my-system\" \"MY-PACKAGE\"))
        (if ,sys-var
            (progn
              ,@body)
-         (%raise-sys-not-found ,name)))))
+         (error "System name ~a not found in *system-table*, consider adding it?~%"
+                ,name)))))
 
-(defun %already-loaded (sys-name)
+(defun %already-loaded.1 (sys-name)
   (if sys-name
       (let ((system (gethash sys-name *system-table*)))
         (if system
@@ -143,6 +144,15 @@ e.g. from a list of: (\"CAR\" (NIL \"CL\") (\"my-system\" \"MY-PACKAGE\"))
   "Return t if sys-name should be loaded. This depends on load-at-startup and (already)
 loaded values."
   (if sys-name
+      (%with-system (system sys-name)
+        (and (first system) (not (second system))))
+    ;; nil sys-name means cl std pkg, no loading
+    nil))
+
+(defun %should-load-at-startup.1 (sys-name)
+  "Return t if sys-name should be loaded. This depends on load-at-startup and (already)
+loaded values."
+  (if sys-name
       (let ((load-val (gethash sys-name *system-table*)))
         (if load-val
             (and (first load-val) (not (second load-val)))
@@ -150,11 +160,11 @@ loaded values."
     ;; nil sys-name means cl std pkg, no loading
     nil))
 
-(defun %raise-sys-not-found (sys-name)
-  (error "System name ~a not found in *system-table*, consider adding it?~%"
-           sys-name))
-
 (defun %set-loaded (sys-name)
+  (%with-system (system sys-name)
+    (setf (second system) t)))
+
+(defun %set-loaded.1 (sys-name)
   (let ((system (gethash sys-name *system-table*)))
     (if system
         (setf (second system) t)
@@ -162,7 +172,8 @@ loaded values."
 
 (defun %loaded? (sys-name)
   (if sys-name
-      (second (gethash sys-name *system-table*))
+      (%with-system (system sys-name)
+        (second system))
     t))
 
 (defun %intern-now (sym-name sym to-pkg)
@@ -204,20 +215,19 @@ as a-symbol{.N}~, and shadowing-import every the a-symbol name from from-pkg
 to to-pkg in to-pkg-details.
 sys: (list sys-name package-name)"
   (flet ((belongs-to-sys (pkg-sym)
-           (let ((first-sys
-                  (search (list (first sys))
-                          (cdr pkg-sym)
-                          :test (lambda (a b) (equalp a (first b))))))
-             (if first-sys
-                 first-sys
-               0))))
+           (search (list (first sys))
+                   (cdr pkg-sym)
+                   :test (lambda (a b) (equalp a (first b))))))
     (let ((to-pkg (find-package (first to-pkg-details))))
       (dolist (s (third to-pkg-details))
-        (let ((i (belongs-to-sys s))
-              (sym (find-symbol (first s) from-pkg)))
-          (shadowing-import sym to-pkg)
-          (unintern (%get-target-sym-name (first s) i) to-pkg)
-          (export sym to-pkg))))))
+        (let ((i (belongs-to-sys s)))
+          (when i
+            (let ((sym (find-symbol (first s) from-pkg)))
+              (shadowing-import sym to-pkg)
+              (unintern (find-symbol (%get-target-sym-name (first s) i)
+                                     to-pkg)
+                        to-pkg)
+              (export sym to-pkg))))))))
   
 (defun %add-sub-packages (p-name parent-pkg package-tree)
   (dolist (s (%get-sub-packages p-name package-tree))

@@ -70,7 +70,7 @@ When you want to use, e.g. alexandria:cswitch, you should first find and call:
 (lib.lang.flow:cswitch~)
 ```
 
-Which will load the corresponding system, alexandria, then intern the cswitch symbol at the same place and unintern the cswitch~. And you can call the previous command without ~ at the end.
+Which will load the corresponding system, alexandria, then intern all the symbols of alexandria to their target packages in the hierarchy. Then you can call the previous command (or any other from the same system) without ~ at the end.
 
 Btw, system loading is done by asdf, thus you should already have the corresponding system downloaded and asdf-reachable.
 
@@ -107,7 +107,7 @@ The complete hierarchy is contained in a tree in either lib-defs.lisp (std + 3rd
 ## TODO
 
 - [ ] CLHS categorisation: Using the full symbol index page (1), for each symbol, find the sections that mention this symbol in sections pages (2), and form the library packages corresponding to the sections.
-- Add(ing) well known asdf libraries to the lib-* categories (~~asdf-uiop~~, ~~alexandria~~, ppcre, containers, etc.). Do this continuosly as you learn libraries.
+- Add(ing) well known asdf libraries to the lib-* categories (~~asdf-uiop~~, ~~alexandria~~, ~~ppcre~~, containers, etc.). Do this continuosly as you learn libraries.
 
 
 ## Improvement ideas
