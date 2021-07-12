@@ -40,11 +40,12 @@
       (setf syms (append syms
                          (%import-and-get-symbols (first s)
                                                   (cdr s)
-                                                  pkg))))
+                                                  pkg
+                                                  package-tree))))
     (export syms pkg)
     (%add-sub-packages (first p) pkg package-tree)))
 
-(defun %import-and-get-symbols (sym-name systems to-pkg)
+(defun %import-and-get-symbols (sym-name systems to-pkg pkg-tree)
   "Return a list of symbols which are either from a system-package, or
 a list of sym-nameN{~}* where ~ is optional. See Lazy interning in the
 top comment of *lib-package-tree* for details.
@@ -55,42 +56,109 @@ top comment of *lib-package-tree* for details.
   (let (syms
         (last-added-sym 0))
     (dolist (sys systems syms)
-      (%maybe-load (first sys))
-      (push (%lazy-intern sym-name sys last-added-sym to-pkg)
+      (%maybe-load-at-startup (first sys))
+      (push (%lazy-intern sym-name sys last-added-sym to-pkg pkg-tree)
             syms)
       (incf last-added-sym))))
 
+(defun %maybe-load-at-startup (sys-name)
+  "asdf load the system if necessary."
+  (if (%should-load-at-startup sys-name)
+      (progn
+        (asdf:load-system sys-name)
+        (%set-loaded sys-name)
+        t)
+    nil))
+
 (defun %maybe-load (sys-name)
   "asdf load the system if necessary."
-  (when (%should-load sys-name)
-    (asdf:load-system sys-name)
-    (%set-loaded sys-name)))
+  (if (%already-loaded sys-name)
+      nil
+    (progn
+      (asdf:load-system sys-name)
+      (%set-loaded sys-name)
+      t)))
 
-(defun %lazy-intern (sym-name sys sym-cnt to-pkg)
+(defun %lazy-intern (sym-name sys sym-cnt to-pkg pkg-tree)
   "sys: (sys-name package-name)
 See Lazy interning in the
 top comment of *lib-package-tree* for details.
 
 Intern a symbol, and return that symbol name (package relative).
 "
-  (let ((new-sym-name (if (zerop sym-cnt)
-                          sym-name
-                        (concatenate 'string sym-name "." (write-to-string sym-cnt)))))
+  (let ((new-sym-name (%get-target-sym-name sym-name sym-cnt :loaded t)))
     (if (%loaded? (first sys))
         (%intern-now new-sym-name
                      (find-symbol sym-name (find-package (second sys)))
                      to-pkg)
-      (%intern-later new-sym-name sys to-pkg))))
-  
-(defun %should-load (sys-name)
-  "Return t if sys-name should be loaded. This depends on load-at-startup and (already) loaded values."
+      (%intern-later new-sym-name sys to-pkg pkg-tree))))
+
+(defun %get-target-sym-name (sym-name index &key (loaded nil))
+  "Name of the symbol to create depends on how many systems / packages are
+exporting the symbol. If more than one, than the first one is the sym-name,
+and subsequent ones are appended a dot + number starting from 1. If the system
+is not loaded, then a tilde will be appended to the name.
+index: 0 based, which index system is the symbol imported from in a symbol list
+       of (sym-name (sys0 pkg0) (sys1 pkg1) ..)
+
+e.g. from a list of: (\"CAR\" (NIL \"CL\") (\"my-system\" \"MY-PACKAGE\"))
+     we want the symbol for my-system, thus call
+       (%get-target-sym-name \"CAR\" 1 :loaded nil)
+     to get \"CAR.1~\"
+"
+  (let ((new-sym-name
+         (if (zerop index)
+             sym-name
+           (concatenate 'string sym-name "." (write-to-string index)))))
+    (if loaded
+        new-sym-name
+      (%append-unloaded-suffix new-sym-name))))
+
+(defun %append-unloaded-suffix (sym-name)
+  (concatenate 'string sym-name "~"))
+
+(defun %get-target-sym-name.test1 ()
+  (assert (equalp "CAR.1~" (%get-target-sym-name "CAR" 1 :loaded nil)))
+  (assert (equalp "CAR~" (%get-target-sym-name "CAR" 0)))
+  (assert (equalp "CAR" (%get-target-sym-name "CAR" 0 :loaded t))))
+
+(defmacro %with-system ((sys-var sys-name) &body body)
+  (let ((name (gensym)))
+    `(let* ((,name ,sys-name)
+            (,sys-var (gethash ,name *system-table*)))
+       (if ,sys-var
+           (progn
+             ,@body)
+         (%raise-sys-not-found ,name)))))
+
+(defun %already-loaded (sys-name)
+  (if sys-name
+      (let ((system (gethash sys-name *system-table*)))
+        (if system
+            (second system)
+          (%raise-sys-not-found sys-name)))
+    t))
+
+(defun %should-load-at-startup (sys-name)
+  "Return t if sys-name should be loaded. This depends on load-at-startup and (already)
+loaded values."
   (if sys-name
       (let ((load-val (gethash sys-name *system-table*)))
-        (and (first load-val) (not (second load-val))))
+        (if load-val
+            (and (first load-val) (not (second load-val)))
+          (%raise-sys-not-found sys-name)))
+    ;; nil sys-name means cl std pkg, no loading
     nil))
-        
+
+(defun %raise-sys-not-found (sys-name)
+  (error "System name ~a not found in *system-table*, consider adding it?~%"
+           sys-name))
+
 (defun %set-loaded (sys-name)
-  (setf (second (gethash sys-name *system-table*)) t))
+  (let ((system (gethash sys-name *system-table*)))
+    (if system
+        (setf (second system) t)
+      (%raise-sys-not-found sys-name))))
 
 (defun %loaded? (sys-name)
   (if sys-name
@@ -106,7 +174,7 @@ Intern a symbol, and return that symbol name (package relative).
       (setf (symbol-value new-sym) sym)
       new-sym)))
 
-(defun %intern-later (sym-name sys to-pkg)
+(defun %intern-later (sym-name sys to-pkg pkg-tree)
   "Create a symbol with a ~ appended to end, bound to a function to do:
 load the associated system (via asdf - not quicklisp, so everything is offline),
 create the expected symbol without the ~ this time, pointing to the actual object of concern and
@@ -115,16 +183,42 @@ delete the symbol with the ~ at the end.
   (let* ((new-sym-name (concatenate 'string sym-name "~"))
          (new-sym (intern new-sym-name to-pkg)))
     (setf (symbol-function new-sym)
-          (lambda ()
-            (asdf:load-system (first sys))
-            (let ((sym (find-symbol sym-name (find-package (second sys)))))
-              (%intern-now sym-name sym to-pkg)
-              (unintern new-sym to-pkg)
-              (export sym to-pkg)
-              (format t "New symbol ~a interned and ~a removed.~%"
-                      sym-name new-sym-name))))
+          (lambda () (%activate-system sys pkg-tree)))
     new-sym))
 
+(defun %activate-system (sys pkg-tree)
+  "asdf:load the system and for every symbol of it
+import-export them in the tree."
+  (if (%maybe-load (first sys))
+      (let ((from-pkg (find-package (second sys))))
+        (dolist (to-pkg-details pkg-tree)
+          (%rename-import-syms sys to-pkg-details from-pkg))
+        (format t "All symbols of system ~a imported.~%" (first sys)))
+    (format t "System ~a already activated. Nothing to do.~%"
+            (first sys))))
+
+(defun %rename-import-syms (sys to-pkg-details from-pkg)
+  "For the symbols in to-pkg-details that belong to sys,
+unintern the symbols corresponding to that package, which will be named
+as a-symbol{.N}~, and shadowing-import every the a-symbol name from from-pkg
+to to-pkg in to-pkg-details.
+sys: (list sys-name package-name)"
+  (flet ((belongs-to-sys (pkg-sym)
+           (let ((first-sys
+                  (search (list (first sys))
+                          (cdr pkg-sym)
+                          :test (lambda (a b) (equalp a (first b))))))
+             (if first-sys
+                 first-sys
+               0))))
+    (let ((to-pkg (find-package (first to-pkg-details))))
+      (dolist (s (third to-pkg-details))
+        (let ((i (belongs-to-sys s))
+              (sym (find-symbol (first s) from-pkg)))
+          (shadowing-import sym to-pkg)
+          (unintern (%get-target-sym-name (first s) i) to-pkg)
+          (export sym to-pkg))))))
+  
 (defun %add-sub-packages (p-name parent-pkg package-tree)
   (dolist (s (%get-sub-packages p-name package-tree))
     (let ((sym (intern (subseq s (length p-name))
