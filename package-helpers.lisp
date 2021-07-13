@@ -132,14 +132,6 @@ e.g. from a list of: (\"CAR\" (NIL \"CL\") (\"my-system\" \"MY-PACKAGE\"))
          (error "System name ~a not found in *system-table*, consider adding it?~%"
                 ,name)))))
 
-(defun %already-loaded.1 (sys-name)
-  (if sys-name
-      (let ((system (gethash sys-name *system-table*)))
-        (if system
-            (second system)
-          (%raise-sys-not-found sys-name)))
-    t))
-
 (defun %should-load-at-startup (sys-name)
   "Return t if sys-name should be loaded. This depends on load-at-startup and (already)
 loaded values."
@@ -149,26 +141,9 @@ loaded values."
     ;; nil sys-name means cl std pkg, no loading
     nil))
 
-(defun %should-load-at-startup.1 (sys-name)
-  "Return t if sys-name should be loaded. This depends on load-at-startup and (already)
-loaded values."
-  (if sys-name
-      (let ((load-val (gethash sys-name *system-table*)))
-        (if load-val
-            (and (first load-val) (not (second load-val)))
-          (%raise-sys-not-found sys-name)))
-    ;; nil sys-name means cl std pkg, no loading
-    nil))
-
 (defun %set-loaded (sys-name)
   (%with-system (system sys-name)
     (setf (second system) t)))
-
-(defun %set-loaded.1 (sys-name)
-  (let ((system (gethash sys-name *system-table*)))
-    (if system
-        (setf (second system) t)
-      (%raise-sys-not-found sys-name))))
 
 (defun %loaded? (sys-name)
   (if sys-name
