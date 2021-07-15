@@ -205,7 +205,8 @@
       ("NTH" (NIL "CL"))
       ))
     ("LIB.CONT.ITER" "Container iteration"
-     ())
+     (
+      ))
     ("LIB.CONT.ARRAY" "Container array"
      (("ARRAY-TOTAL-SIZE-LIMIT" (NIL "CL"))
       ("MAKE-ARRAY" (NIL "CL"))
@@ -734,6 +735,64 @@
       ("WHICHEVER" ("alexandria" "ALEXANDRIA"))
       ("XOR" ("alexandria" "ALEXANDRIA"))
       
+      ))
+    
+    ("LIB.LANG.FLOW.ITER" "Loop alternative iterator"
+     (("ITERATE" ("iterate" "ITER"))
+      ("ITER" ("iterate" "ITER"))
+      ("DISPLAY-ITERATE-CLAUSES" ("iterate" "ITER"))
+      ("DEFSYNONYM" ("iterate" "ITER"))
+      ("DSETQ" ("iterate" "ITER"))
+      ("DECLARE-VARIABLES" ("iterate" "ITER"))
+      ("DEFMACRO-CLAUSE" ("iterate" "ITER"))
+      ("DEFMACRO-DRIVER" ("iterate" "ITER"))
+      ("DEFCLAUSE-SEQUENCE" ("iterate" "ITER"))
+      ("INITIALLY" ("iterate" "ITER"))
+      ("AFTER-EACH" ("iterate" "ITER"))
+      ("FINALLY" ("iterate" "ITER"))
+      ("FINALLY-PROTECTED" ("iterate" "ITER"))
+      ("ELSE" ("iterate" "ITER"))
+      ("IF-FIRST-TIME" ("iterate" "ITER"))
+      ("FIRST-ITERATION-P" ("iterate" "ITER"))
+      ("FIRST-TIME-P" ("iterate" "ITER"))
+      ("FINISH" ("iterate" "ITER"))
+      ("LEAVE" ("iterate" "ITER"))
+      ("NEXT-ITERATION" ("iterate" "ITER"))
+      ("NEXT" ("iterate" "ITER"))
+      ("TERMINATE" ("iterate" "ITER"))
+      ("REPEAT" ("iterate" "ITER"))
+      ("FOR" ("iterate" "ITER"))
+      ("AS" ("iterate" "ITER"))
+      ("GENERATE" ("iterate" "ITER"))
+      ("GENERATING" ("iterate" "ITER"))
+      ("IN" ("iterate" "ITER"))
+      ("SUM" ("iterate" "ITER"))
+      ("SUMMING" ("iterate" "ITER"))
+      ("MULTIPLY" ("iterate" "ITER"))
+      ("MULTIPLYING" ("iterate" "ITER"))
+      ("MAXIMIZE" ("iterate" "ITER"))
+      ("MINIMIZE" ("iterate" "ITER"))
+      ("MAXIMIZING" ("iterate" "ITER"))
+      ("MINIMIZING" ("iterate" "ITER"))
+      ("COUNTING" ("iterate" "ITER"))
+      ("ALWAYS" ("iterate" "ITER"))
+      ("NEVER" ("iterate" "ITER"))
+      ("THEREIS" ("iterate" "ITER"))
+      ("FINDING" ("iterate" "ITER"))
+      ("COLLECT" ("iterate" "ITER"))
+      ("COLLECTING" ("iterate" "ITER"))
+      ("WITH" ("iterate" "ITER"))
+      ("WHILE" ("iterate" "ITER"))
+      ("UNTIL" ("iterate" "ITER"))
+      ("ADJOINING" ("iterate" "ITER"))
+      ("NCONCING" ("iterate" "ITER"))
+      ("APPENDING" ("iterate" "ITER"))
+      ("NUNIONING" ("iterate" "ITER"))
+      ("UNIONING" ("iterate" "ITER"))
+      ("REDUCING" ("iterate" "ITER"))
+      ("ACCUMULATE" ("iterate" "ITER"))
+      ("ACCUMULATING" ("iterate" "ITER"))
+
       ))
     ("LIB.LANG.BASE" "Lang basic constructs"
      (("EQUAL" (NIL "CL"))
@@ -1987,32 +2046,4 @@ second item: package description
 third     : a list of:
   (symbol-name-to-export
    original-package-name)")
-
-
-
-(eval-when (:compile-toplevel :execute :load-toplevel)
-#|  (defvar *system-table* (make-hash-table :test 'equalp)
-    "A hash table of <system-name (load-at-startup loaded)>
-load-at-startup: bool
-loaded: bool
-")
-  |#
-
-  ;; add each system as: ("system-name" load-at-startup)
-  (let ((system-table '(("alexandria" nil)
-                        ("asdf" t)
-                        ("cl-ppcre" nil)
-                        ("closer-mop" nil))))
-    (dolist (sys system-table)
-      (setf (gethash (first sys) *system-table*)
-            ;; no system is loaded yet, put nil for second element
-            (list (second sys) nil)))))
-
-
-(defvar *lib-package-test*
-  '(("LIB" "Top level"
-     ())
-    ("LIB.FUN" "Functions"
-     (("QUIT"  ("asdf" "UIOP/IMAGE"))
-      ))))
 

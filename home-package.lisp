@@ -16,6 +16,13 @@
 
 
 (eval-when (:compile-toplevel :execute :load-toplevel)
+
   (defparameter *package-lists* nil "list of used package-details")
-  (defvar *system-table* (make-hash-table :test 'equalp)))
+
+  (defvar *system-table* (make-hash-table :test 'equalp)
+    "A hash table of {key:string val:(bool bool)},
+       with meanings:
+         key: system-name,
+         val: (import-symbols-at-startup loaded)")
+  )
 

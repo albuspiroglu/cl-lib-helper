@@ -7,6 +7,7 @@
   :licence "MIT"
   :depends-on ()
   :components ((:file "home-package")
+               (:file "known-libs" :depends-on ("home-package"))
                (:file "package-helpers" :depends-on ("home-package"))
 
                (:module std-lib

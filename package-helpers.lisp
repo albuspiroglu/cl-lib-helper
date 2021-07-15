@@ -65,10 +65,18 @@ top comment of *lib-package-tree* for details.
   "asdf load the system if necessary."
   (if (%should-load-at-startup sys-name)
       (progn
-        (asdf:load-system sys-name)
+        ;; asdf isn't happy about loading other systems during a load operation
+        ;; and since we're currently loading lib-helper, tell the user what to do
+        (unless (%asdf-system-loaded sys-name)
+          (error "=========A symbol is exported from system ~a, but it is currently
+not loaded. Either load the system before lib-helper, or remove the flag to
+import-symbols-at-startup in known-libs.lisp.~%" sys-name))
         (%set-loaded sys-name)
         t)
     nil))
+
+(defun %asdf-system-loaded (sys-name)
+  (find sys-name (asdf:already-loaded-systems) :test #'equalp))
 
 (defun %maybe-load (sys-name)
   "asdf load the system if necessary."
