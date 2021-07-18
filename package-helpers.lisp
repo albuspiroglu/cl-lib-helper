@@ -94,10 +94,13 @@ top comment of *lib-package-tree* for details.
 
 Intern a symbol, and return that symbol name (package relative).
 "
-  (let ((new-sym-name (%get-target-sym-name sym-name sym-cnt :loaded t)))
+  (let ((new-sym-name (%get-target-sym-name sym-name sym-cnt :loaded t))
+        (from-package (find-package (second sys))))
+    (unless from-package
+      (error "lazy-inter: package ~a not found.~%" (second sys)))
     (if (%loaded? (first sys))
         (%intern-now new-sym-name
-                     (find-symbol sym-name (find-package (second sys)))
+                     (find-symbol sym-name from-package)
                      to-pkg)
       (%intern-later new-sym-name sys to-pkg pkg-tree))))
 
