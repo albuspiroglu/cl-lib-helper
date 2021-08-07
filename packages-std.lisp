@@ -36,6 +36,14 @@ eval during compile or load or execute time.
       (setf (symbol-function f)
             (lambda ()
               (lib~:symbol-count lib~:*std-package-tree*))))
+    (let ((f (intern "APROPOS-LIB" pkg)))
+      (setf (symbol-function f)
+            (lambda (sub-str &optional (print-results t))
+              (lib~:apropos-lib sub-str lib~:*std-package-tree* print-results))))
+    (let ((f (intern "FIND-SYMS" pkg)))
+      (setf (symbol-function f)
+            (lambda (phrase &optional (print-results t))
+              (lib~:find-syms phrase lib~:*std-package-tree* print-results))))
     )
   )
 
@@ -46,5 +54,7 @@ eval during compile or load or execute time.
 (export '(DELETE-THIS-SYSTEM
           GET-PACKAGE-NAMES
           PACKAGES
-          SYMBOL-COUNT))
+          SYMBOL-COUNT
+          APROPOS-LIB
+          FIND-SYMS))
 

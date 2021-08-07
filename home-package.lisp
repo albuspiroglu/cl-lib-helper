@@ -10,7 +10,10 @@
            "*LIB-PACKAGE-TREE*"
            "PACKAGES-AUX"
            "*SYSTEM-TABLE*"
-           "SYMBOL-COUNT"))
+           "SYMBOL-COUNT"
+           "GENERATE-PACKAGE-SYMBOLS"
+           "APROPOS-LIB"
+           "FIND-SYMS"))
 
 (in-package "LIB~")
 

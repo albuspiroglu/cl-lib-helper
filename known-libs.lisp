@@ -22,7 +22,8 @@
                         ("cl-ppcre" t)
                         ("closer-mop" t)
                         ("iterate" t)
-                        ("lil" t))))
+                        ("lil" t)
+                        ("cl-containers" t))))
     (dolist (sys system-table)
       (setf (gethash (first sys) *system-table*)
             ;; no system is loaded yet, put nil for second element

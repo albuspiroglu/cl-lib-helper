@@ -107,8 +107,8 @@ The complete hierarchy is contained in a tree in either lib-defs.lisp (std + 3rd
 ## TODO
 
 - [ ] CLHS categorisation: Using the full symbol index page (1), for each symbol, find the sections that mention this symbol in sections pages (2), and form the library packages corresponding to the sections.
-- Add(ing) well known asdf libraries to the lib.* categories (~~asdf-uiop~~, ~~alexandria~~, ~~ppcre~~, ~~iterate~~, containers, ~~closer-mop~~, bordeaux-threads, lparallel, osicat, cl-opengl, etc.).
-
+- Add(ing) well known asdf libraries to the lib.* categories (~~asdf-uiop~~, ~~alexandria~~, ~~ppcre~~, ~~iterate~~, containers, ~~closer-mop~~, bordeaux-threads, ~~lil~~, lparallel, osicat, cl-opengl, etc.).
+- [ ] Add cl-containers. Since I already created some container branches, I should merge cl-containers into them. But then to reduce confusion, I can add ".clc" to the end of each category to separate the cl-containers bits. This way someone looking for hash-tables can use lib.cont.hash:, or lib.cont.hash.clc: .
 
 ## Improvement ideas
 If you have ideas, I'll be more than
@@ -140,10 +140,22 @@ notes from my code:
 	
 	|#
 
+#### [2021-08-01]
+While working on cl-containers, I started realising a problem in design. This library is trying to categorise libraries into hierarchical packages, sometimes using library author's package structure, sometimes using domain-categorised sections. Both ideas would be expected to converge but the difficulty of different authors standardising such a category is an unsolved problem. I think I'll come up with some guidelines. 
+
+Here, the list of criteria while managing the hierarchy is roughly:
+
+1. Keep the tree balanced, with number of subbranches around 3-5
+2. Keep the number of symbols low, possibly < 30? Or instead minimise number of non-coherent symbols, where coherent symbols are syntactically similar (such as car, caar, cdr, cadr; or select-item, select-node, select-somethingelse).
+3. Generic methods can be cloned to different branches where each branch represents a class that implements those methods. This is helpful to organise object oriented design. We will end up having packages that correspond to classes with methods and members.
 
 ## History
 
-[2021-06-27]
+### [2021-08-01]
+Add cl-containers. This library proves to be quite difficult to categorise, although it is organised quite well itself. 
+
+
+### [2021-06-27]
 Turn the base code into a package.
 
 ## References
