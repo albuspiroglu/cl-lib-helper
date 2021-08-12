@@ -404,11 +404,28 @@ this function returns:
               (nconc (first tree) (list (cdr s))))))))))
 
 (defun %get-generic-functions ()
-  "Return all generic functions defined in the current lisp image."
+  "Return all generic functions defined in the current lisp image.
+
+(gm1 gm2 ...):
+gm: (gf-sym (gm1 lambda-list1 ..) ..)
+"
   (let (result)
-    (do-all-symbols (sym (remove-duplicates result))
+    (do-all-symbols (sym (mapcar
+                          (lambda (g)
+                            (append (list g)
+                                    (mapcar
+                                     (lambda (gm)
+                                       (list gm (closer-mop:method-lambda-list gm)))
+                                     (closer-mop:generic-function-methods (symbol-function g)))))
+                          (remove-duplicates
+                           ;; remove any setf ones:
+                           (remove-if (lambda (s) (consp
+                                                   (closer-mop:generic-function-name
+                                                    (symbol-function s))))
+                                      result))))
       (if (and (fboundp sym)
-               (typep (symbol-function sym) 'generic-function)) (push sym result)))))
+               (typep (symbol-function sym) 'generic-function))
+          (push sym result)))))
 
 (defun %get-symbol-node (sym sys-name package-name)
   (list (string sym)
@@ -500,12 +517,13 @@ slot names, then a reduction in this set will give us a confident result."
       (setf names (append (mapcar (lambda (s) (symbol-name (if (symbolp s) s (second s))))
                                    (closer-mop:slot-definition-writers slot))
                           names)))
-    (dolist (sym generic-functions)
-      (unless (consp (closer-mop:generic-function-name (symbol-function sym)))
-        (dolist (gm (closer-mop:generic-function-methods (symbol-function sym)))
-          (when (some (lambda (ml) (eq (find-class ml nil) class))
-                      (closer-mop:method-lambda-list gm))
-            (push (symbol-name sym) methods)))))
+    (dolist (gm generic-functions) ; gm: (gf-sym (gm1 lambda-list1 ..) ..)
+      (when (some (lambda (ml)
+                    (some (lambda (ll) (eq (find-class ll nil) class))
+                          (first (rest ml))))
+                  (rest gm))
+        (push (symbol-name (first gm)) methods)))
+    
     (remove-duplicates
      (append (%filter-external-syms names (find-package pkg-name))
              methods)
