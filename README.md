@@ -63,6 +63,8 @@ e.g. try to get to lib.str.comp:*
 
 After finding what you were looking for, you can either use the symbol from the package you found, or use it directly from its original package. The primary purpose of this library is to let you find things, not to alter your coding convention (although using the package names of this library might improve readability - although this claim is not tested yet).
 
+Speaking of finding, check the (lib:find-syms) function description below, it is quite powerful.
+
 #### Classes as packages
 With 2021-08-12 commit, we now have this interesting feature. If a package has a class defined in it, then there will be a corresponding package with that class name, and all the methods specialised to that class + slot accessors will be symbols under that package. This way, you can see all relevant methods in one place, instead of trying to guess or using clos functions to find the specialisations. A class symbol pointing to the sub package will be starting with double-dots ".." instead of single as is the case for sub packages.
 
@@ -110,6 +112,8 @@ print the matching branches.
 Given a number of words in the phrase (first word for the symbol, others for
 description and package path, find the closest matches within the lib hierarchy.
 
+phrase can be either one string with multiple words, or a list of expressions (cl-ppcre re expressions).
+
 Match will be listed for: 
     
     (first phrase) contained in symbol name AND
@@ -122,6 +126,14 @@ e.g.
 will list more results then:
 
     (lib:find-syms "interface lil pure")
+    
+The way we extract the description of any symbol is:
+"symbol-path-in-hierarchy : any description in any symbol namespace"
+
+This means lib-helper will search for function description, variable description, class or struct or macro description all the same, and concat them to the description. This gives us a powerful way to do search (or I call it a better apropos). For example to find any symbol with the word "structure" in its descriptions:
+
+    (lib:find-syms '(".*" "structure"))
+
 
 #### (lib:packages), (std:packages)
 See the list of packages, printed with some grouping.

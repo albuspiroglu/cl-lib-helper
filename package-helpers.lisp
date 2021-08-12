@@ -12,7 +12,7 @@ A sym-list is of shape: (\"CIRCULAR-LIST\" (\"alexandria\" \"ALEXANDRIA\"))
   "Given a sym-list from the package-tree, return the full description.
 A sym-list is of shape: (\"CIRCULAR-LIST\" (\"alexandria\" \"ALEXANDRIA\") \"full-description\")
 "
-  (third sym-list))
+  (first (last sym-list)))
   
 (defun %package-tree-branch-systems (sym-list)
   "Given a sym-list from the package-tree, return the systems list.
@@ -618,16 +618,29 @@ print-results: if t (default), print the results instead of returning a list.
                 package-tree print-results))
 
 (defun find-syms (phrase package-tree &optional (print-results t))
-  "Given a number of words in the phrase (first word for the symbol, others for
+  "Given a number of words or re-patterns in the phrase (first word for the symbol, others for
 description and package path, find the closest matches within the lib hierarchy.
+
+re-patterns use cl-ppcre.
 
 print-results: if t (default), print the results instead of returning a list.
 "
-  (%find-lib-aux (lambda (sym-list branch)
-                   (%match-with-symbol phrase (%package-tree-branch-symbol-fullpath
-                                               sym-list
-                                               (%package-tree-branch-path branch))))
-                 package-tree print-results))
+  (let ((phrase-regexes (mapcar (lambda (w) (cl-ppcre:create-scanner w
+                                                                     :case-insensitive-mode t))
+                                (typecase phrase
+                                  (cons phrase)
+                                  (string
+                                   (mapcar (lambda (w) (concatenate 'string
+                                                                    ".*"
+                                                                    w
+                                                                    ".*"))
+                                           (cl-ppcre:split "\\s+" phrase)))))))
+    (%find-lib-aux (lambda (sym-list branch)
+                     (%match-with-symbol phrase-regexes
+                                         (%package-tree-branch-symbol-fullpath
+                                          sym-list
+                                          (%package-tree-branch-path branch))))
+                   package-tree print-results)))
 
 (defun %package-tree-branch-symbol-fullpath (sym-list branch-path)
   "Given a package-tree's sym-list, return the symbol with package-path.
@@ -641,17 +654,15 @@ e.g. given:
         branch-path
         (%package-tree-branch-full-desc sym-list)))
          
-(defun %match-with-symbol (phrase full-path-symbol)
-  "Return true if any word in phrase matches the symbol name AND
-all the words in the phrase (except the symbol name) matches the
-symbol's description."
-  (let* ((phrase-words (cl-ppcre:split "\\s+" phrase))
-         (sym-name (symbol-name (first full-path-symbol)))
-         (phrase-words-except-sym (rest phrase-words))
+(defun %match-with-symbol (phrase-regexes full-path-symbol)
+  "Return true if any expression in phrase-regexes matches the symbol name AND
+all the rest in phrase-regexes match the symbol's full-description (which
+includes hierarchy path along with all namespace descriptions)."
+  (let* ((sym-name (symbol-name (first full-path-symbol)))
          (desc (third full-path-symbol)))
     (and
-     (search (first phrase-words) sym-name :test 'equalp)
-     (every (lambda (s) (search s desc :test 'equalp)) phrase-words-except-sym))))
+     (cl-ppcre:scan (first phrase-regexes) sym-name)
+     (every (lambda (s) (cl-ppcre:scan s desc)) (rest phrase-regexes)))))
 
 (defvar %doc-sys%
   (list
@@ -660,7 +671,8 @@ symbol's description."
    (list #'compiler-macro-function 'compiler-macro)
    (list (lambda (v) (typep (find-class v nil) 'structure-class)) 'structure-class)
    (list (lambda (v) (typep (find-class v nil) 'standard-class)) 'type))
-  "Doc system functions and corresponding types for documentation lookup.")
+  "Doc system functions and corresponding types for documentation
+lookup in multiple namespaces of a symbol.")
 
 (defun %get-sym-desc (sym)
   "Given a symbol, return its corresponding description. If there are descriptions in
