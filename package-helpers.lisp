@@ -293,8 +293,13 @@ sys: (list sys-name package-name)"
           (push (first p) subs)))))
 
 (defun %get-parent-name (pkg-name)
-  "Given lib.lvl1.lvl2 shaped package name, return lib.lvl1"
-  (let ((dot-pos (search "." pkg-name :from-end t)))
+  "Given lib.lvl1.lvl2 shaped package name, return lib.lvl1; or
+lib.lvl1.lvl2..class1, return lib.lvl1.lvl2"
+  (let ((dot-pos
+         (let ((test-pos (search ".." pkg-name :from-end t)))
+           (if test-pos
+               test-pos
+             (search "." pkg-name :from-end t)))))
     (if dot-pos
         (subseq pkg-name 0 dot-pos)
         "")))
@@ -335,8 +340,7 @@ sys: (list sys-name package-name)"
 
 (defun generate-system-symbols (sys-name prefix packages
                                          &optional (stream *standard-output*))
-  "Not implemented yet.
-function maturity: 0
+  "function maturity: 1
 Generate a package tree corresponding to the system. Then the result can be
 manually pasted into the lib-defs.lisp
 
@@ -345,7 +349,8 @@ Also creates sections for classes and their implemented methods.
 sys-name: string, name of the asdf system
 prefix  : the package-tree section prefix for packages of the system to be imported from.
           e.g. for containers package to be under lib.cont pass \"LIB.CONT\".
-packages: list of packages to import from. A system may define many packages, but the
+packages: list of packages to import from and to (\"package-from\" \"package-to\".
+          A system may define many packages, but the
           the user should manually choose a subset that the symbols will be imported
           from, and pass them here.
           
@@ -367,8 +372,8 @@ this function returns:
       ...
       ))
 "
-  (labels ((get-header (package-name &optional (desc "Package: "))
-             (list (concatenate 'string prefix "." package-name)
+  (labels ((get-header (package-name to-package-name &optional (desc "Package: "))
+             (list (concatenate 'string prefix "." to-package-name)
                    (concatenate 'string desc package-name)))
                    
            )
@@ -378,20 +383,22 @@ this function returns:
           (generic-functions (%get-generic-functions)))
       (dolist (p packages (%format-package-tree-syms (nreverse tree)
                                                      stream))
-        (setf package-name (package-name p))
-        (push (get-header package-name) tree)
+        (setf package-name (package-name (first p)))
+        (push (get-header package-name (second p)) tree)
         (multiple-value-bind (package-symbols class-syms struct-syms)
             (%get-package-symbols package-name sys-name generic-functions)
           (nconc (first tree) (list package-symbols))
           (dolist (c class-syms)
             (when (third c)
               (push (get-header (%mkstr package-name ".." (second c))
+                                (%mkstr (second p) ".." (second c))
                                 "Class: ")
                     tree)
               (nconc (first tree) (list (nthcdr 2 c)))))
           (dolist (s struct-syms)
             (when (second s)
               (push (get-header (%mkstr package-name ".." (first s))
+                                (%mkstr (second p) ".." (second s))
                                 "Struct: ")
                     tree)
               (nconc (first tree) (list (cdr s))))))))))
@@ -419,30 +426,33 @@ this function returns:
   (let (sym-list
         class-syms struct-syms
         (external-syms (%get-package-external-symbols package-name)))
+
     (dolist (sym external-syms)
       (push (%get-symbol-node sym sys package-name) sym-list)
       (when (typep (find-class sym nil) 'structure-class)
         (push sym struct-syms))
       (when (typep (find-class sym nil) 'standard-class)
-        (push (list sym (find-class sym)) class-syms)))
-    (when (or class-syms struct-syms)
-      (dolist (st struct-syms)
-        (nconc st (%get-struct-externals st package-name)))
-      (dolist (cs class-syms)
-        (dolist (s (%get-class-externals (first (last cs))
-                                         package-name
-                                         generic-functions))
-          (npush s cs))))
+        (push (list (find-class sym) sym) class-syms)))
+    
+    (dolist (st struct-syms)
+      (nconc st
+             (sort
+              (mapcar (lambda (s) (%get-symbol-node s sys package-name))
+                      (%get-struct-externals st package-name))
+              #'string-lessp :key #'car)))
+
+    (dolist (cs class-syms)
+      (nconc cs
+             (sort
+              (mapcar (lambda (s) (%get-symbol-node s sys package-name))
+                      (%get-class-externals (first cs)
+                                            package-name
+                                            generic-functions))
+              #'string-lessp :key #'car)))
     (values
      (sort sym-list #'string-lessp :key #'car)
-     (mapcar #'nreverse class-syms)
-     (and struct-syms (setf (rest struct-syms) (sort (rest struct-syms) #'string-lessp))))))
-
-(defun %npush (obj place)
-  "Push obj to the beginning of place, without creating new place
-at the beginning, thus making references to the place aware of the push."
-  (rplacd place (cons (first place) (rest place)))
-  (rplaca place obj))
+     (remove-if-not #'third class-syms)
+     struct-syms)))
 
 (defun %get-struct-externals (struct-name package-name)
   "Given a struct name, check for each struct name and return the
@@ -480,7 +490,7 @@ slot names, then a reduction in this set will give us a confident result."
             (cl-ppcre:all-matches-as-strings ":[^:].+? " struct-form))))
                   
 (defun %get-class-externals (class pkg-name generic-functions)
-  "Return a tree for describing the class."
+  "Return a list of symbols related to the class."
   (let ((slots (closer-mop:class-direct-slots class))
         names methods)
     (dolist (slot slots)
@@ -514,13 +524,13 @@ slot names, then a reduction in this set will give us a confident result."
     result))
 
 (defun generate-system-symbols.test1 ()
-  (generate-system-symbols "lil" "LIB.CONT.LIL"
-                           (list (find-package :lil/pure/hash-table)
-                                 (find-package :lil/interface/all)))
-  
   (generate-system-symbols "lil" "LIB.CONT"
-                           '("LIL/PURE/HASH-TABLE"
-                             "LIL/INTERFACE/ORDER")))
+                             '(("LIL/CORE/ALL" "LIL.CORE")
+                               ("LIL/INTERFACE/ALL" "LIL.INTERFACE")
+                               ("LIL/PURE/ALL" "LIL.PURE")
+                               ("LIL/STATEFUL/ALL" "LIL.STATEFUL")
+                               ("LIL/TRANSFORM/CLASSY" "LIL.CLASSY")
+                               ("LIL/TRANSFORM/POSH" "LIL.POSH"))))
 
 (defun %get-package-owned-external-symbols (package)
   "Return the symbols that are exported from the package, i.e. external."
@@ -680,7 +690,20 @@ an item in %doc-sys%, return the documentation if any."
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+;; package-tree generation examples for some systems
 
+;; lil:
+(lambda ()
+  (with-open-file (f "temp-defs.lisp" :direction :output :if-exists :supersede)
+    (generate-system-symbols "lil" "LIB.CONT"
+                             '(("LIL/CORE/ALL" "LIL.CORE")
+                               ("LIL/INTERFACE/ALL" "LIL.INTERFACE")
+                               ("LIL/PURE/ALL" "LIL.PURE")
+                               ("LIL/STATEFUL/ALL" "LIL.STATEFUL")
+                               ("LIL/TRANSFORM/CLASSY" "LIL.CLASSY")
+                               ("LIL/TRANSFORM/POSH" "LIL.POSH"))
+                             f)))
+  
 #|
 (defmacro defun-in-pkg (name args (&key package) &body body)
   "Define a function in a package.
@@ -717,5 +740,6 @@ an item in %doc-sys%, return the documentation if any."
              (macroexpand (list 'lib~::mtest 'test-fn '(arg)
                                 `(:package ,pkg)
                                 '(print arg)))))))
+
 
 |#
