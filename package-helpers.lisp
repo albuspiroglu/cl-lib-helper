@@ -8,6 +8,12 @@ A sym-list is of shape: (\"CIRCULAR-LIST\" (\"alexandria\" \"ALEXANDRIA\"))
 "
   (first sym-list))
 
+(defun %package-tree-branch-full-desc (sym-list)
+  "Given a sym-list from the package-tree, return the full description.
+A sym-list is of shape: (\"CIRCULAR-LIST\" (\"alexandria\" \"ALEXANDRIA\") \"full-description\")
+"
+  (third sym-list))
+  
 (defun %package-tree-branch-systems (sym-list)
   "Given a sym-list from the package-tree, return the systems list.
 A sym-list is of shape: (\"CIRCULAR-LIST\" (\"alexandria\" \"ALEXANDRIA\"))
@@ -96,18 +102,25 @@ A branch is e.g.:
         (to-pkg (find-package (%package-tree-branch-path p))))
     (dolist (s (%package-tree-symbols p))
       ;; s: (sym-name (from-system1 from-pkg1) (from-system2 from-pkg2) ..)
-      (setf syms (append syms
-                         (%import-and-get-symbols (%package-tree-branch-symbol s)
-                                                  (%package-tree-branch-systems s)
-                                                  to-pkg
-                                                  package-tree))))
+      (let ((s-syms (%import-and-get-symbols (%package-tree-branch-symbol s)
+                                             (%package-tree-branch-systems s)
+                                             to-pkg
+                                             package-tree)))
+        (setf syms (append syms s-syms))
+        (%add-desc-to-sym-branch s (first s-syms) (%package-tree-branch-path p))))
     (export syms to-pkg)
     (%add-sub-packages (first p) to-pkg package-tree)))
 
+(defun %add-desc-to-sym-branch (s sym path)
+  "s being: (sym-name (from-system1 from-pkg1) (from-system2 from-pkg2) ..),
+append the full description to the end."
+  (nconc s (cons (concatenate 'string path " : "
+                              (%get-sym-desc sym)) nil)))      
+  
 (defun %import-and-get-symbols (sym-name systems to-pkg pkg-tree)
-  "Return a list of symbols which are either from a system-package, or
-a list of sym-nameN{~}* where ~ is optional. See Lazy interning in the
-top comment of *lib-package-tree* for details.
+  "For one target symbol, return a list of symbols which are either from a
+system-package, or a list of sym-nameN{~}* where ~ is optional. See
+Lazy interning in the top comment of *lib-package-tree* for details.
 
   sym-name: string
   systems: list of (sys-name package-name)
@@ -595,7 +608,7 @@ slot names, then a reduction in this set will give us a confident result."
   "Look for symbols containing sub-str in the lib hierarchy and
 print the matching branches.
 
-print-results: boolean, if t (default), print the results instead of returning a list.
+print-results: if t (default), print the results instead of returning a list.
 "
   (%find-lib-aux (lambda (sym-list branch)
                    (declare (ignore branch))
@@ -604,9 +617,11 @@ print-results: boolean, if t (default), print the results instead of returning a
                 package-tree print-results))
 
 (defun find-syms (phrase package-tree &optional (print-results t))
-  "Given a number words in the phrase, which is a string, find the
-closest matches within the lib hierarchy. A match is made using the
-symbol name, and symbol's documentation against the words in the phrase."
+  "Given a number words in the phrase (first word for the symbol, others for
+description and package path, find the closest matches within the lib hierarchy.
+
+print-results: if t (default), print the results instead of returning a list.
+"
   (%find-lib-aux (lambda (sym-list branch)
                    (%match-with-symbol phrase (%package-tree-branch-symbol-fullpath
                                                sym-list
@@ -616,26 +631,25 @@ symbol name, and symbol's documentation against the words in the phrase."
 (defun %package-tree-branch-symbol-fullpath (sym-list branch-path)
   "Given a package-tree's sym-list, return the symbol with package-path.
 e.g. given:
-         sym-list    : ('<HASH-TABLE>' ('lil' 'LIL/PURE/HASH-TABLE'))
+         sym-list    : ('<HASH-TABLE>' ('lil' 'LIL/PURE/HASH-TABLE') \"full-description\")
          branch-path : 'LIB.CONT.LIL.PURE.HASH-TABLE'
-     return the symbol:
-        'LIB.CONT.LIL.PURE.HASH-TABLE:<HASH-TABLE>
+     return the list:
+        (--some-original-package-name--:<HASH-TABLE> \"LIB.CONT.LIL.PURE.HASH-TABLE\" \"full-description\")
 "
-  (intern (%package-tree-branch-symbol sym-list)
-          (find-package branch-path)))
+  (list (intern (%package-tree-branch-symbol sym-list) (find-package branch-path))
+        branch-path
+        (%package-tree-branch-full-desc sym-list)))
          
 (defun %match-with-symbol (phrase full-path-symbol)
   "Return true if any word in phrase matches the symbol name AND
 all the words in the phrase (except the symbol name) matches the
 symbol's description."
   (let* ((phrase-words (cl-ppcre:split "\\s+" phrase))
-         (sym-name (symbol-name full-path-symbol))
-         (phrase-words-except-sym (remove-if
-                                   (lambda (x) (search x sym-name :test 'equalp))
-                                   phrase-words))
-         (desc (%get-sym-desc full-path-symbol)))
+         (sym-name (symbol-name (first full-path-symbol)))
+         (phrase-words-except-sym (rest phrase-words))
+         (desc (third full-path-symbol)))
     (and
-     (some (lambda (s) (search s sym-name :test 'equalp)) phrase-words)
+     (search (first phrase-words) sym-name :test 'equalp)
      (every (lambda (s) (search s desc :test 'equalp)) phrase-words-except-sym))))
 
 (defvar %doc-sys%
@@ -650,12 +664,12 @@ symbol's description."
 (defun %get-sym-desc (sym)
   "Given a symbol, return its corresponding description. If there are descriptions in
 more than one namespace (function, variable, class, etc.), combine the results."
-  (let* ((desc (mapcar (lambda (doc-sys) (%get-doc-str sym doc-sys)) %doc-sys%))
-         (desc-str (apply #'%mkstr desc)))
-    desc-str))
+  (apply #'%mkstr
+         (mapcar (lambda (doc-sys) (%get-doc-str sym doc-sys))
+                 %doc-sys%)))
 
 (defun %get-doc-str (sym doc-sys)
-  "Given a symbol, and a doc-sys in the form of (predicate type), which is
+  "Given a symbol, and a doc-sys in the form of '(predicate type), which is
 an item in %doc-sys%, return the documentation if any."
   (if (funcall (first doc-sys) sym)
       (or (documentation sym (second doc-sys)) "")
