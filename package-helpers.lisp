@@ -128,10 +128,11 @@ Lazy interning in the top comment of *lib-package-tree* for details.
   (let (syms
         (last-added-sym 0))
     (dolist (sys systems syms)
-      (%maybe-load-at-startup sys)
-      (push (%lazy-intern sym-name sys last-added-sym to-pkg pkg-tree)
-            syms)
-      (incf last-added-sym))))
+      (when (consp sys)
+        (%maybe-load-at-startup sys)
+        (push (%lazy-intern sym-name sys last-added-sym to-pkg pkg-tree)
+              syms)
+        (incf last-added-sym)))))
 
 (defun %maybe-load-at-startup (system)
   "asdf load the system if necessary.
@@ -617,7 +618,7 @@ print-results: if t (default), print the results instead of returning a list.
                 package-tree print-results))
 
 (defun find-syms (phrase package-tree &optional (print-results t))
-  "Given a number words in the phrase (first word for the symbol, others for
+  "Given a number of words in the phrase (first word for the symbol, others for
 description and package path, find the closest matches within the lib hierarchy.
 
 print-results: if t (default), print the results instead of returning a list.
@@ -734,6 +735,11 @@ an item in %doc-sys%, return the documentation if any."
                                ("LIL/STATEFUL/ALL" "LIL.STATEFUL")
                                ("LIL/TRANSFORM/CLASSY" "LIL.CLASSY")
                                ("LIL/TRANSFORM/POSH" "LIL.POSH"))
+                             f))
+
+  (with-open-file (f "temp-defs.lisp" :direction :output :if-exists :supersede)
+    (generate-system-symbols "cl-ppcre" "LIB.STR"
+                             '(("CL-PPCRE" "ppcre"))
                              f)))
   
 #|

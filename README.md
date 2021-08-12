@@ -19,6 +19,8 @@ Having such a central group of packages to organise others (packages) might give
 easy way to come up with a collection of de-facto standard library composed of
 popular libraries.
 
+In addition, this system gives you packages corresponding to classes and their related symbols and specialised methods under that package. This is similar to what you get with member & encapsulation based OOP-style code completion in other languages.
+
 ## Description
 This is an organisation of popular functionalities in a central, easy-to-browse
 set of packages. This library by itself doesn't add any utility function to common-lisp, 
@@ -61,6 +63,27 @@ e.g. try to get to lib.str.comp:*
 
 After finding what you were looking for, you can either use the symbol from the package you found, or use it directly from its original package. The primary purpose of this library is to let you find things, not to alter your coding convention (although using the package names of this library might improve readability - although this claim is not tested yet).
 
+#### Classes as packages
+With 2021-08-12 commit, we now have this interesting feature. If a package has a class defined in it, then there will be a corresponding package with that class name, and all the methods specialised to that class + slot accessors will be symbols under that package. This way, you can see all relevant methods in one place, instead of trying to guess or using clos functions to find the specialisations. A class symbol pointing to the sub package will be starting with double-dots ".." instead of single as is the case for sub packages.
+
+e.g.
+
+    (lib.cont.lil.interface:
+    
+tab completion above will list lots of classes defined in interface package, all starting with .., so:
+
+    (lib.cont.lil.interface:..
+
+will filter only the classes under interface. Then, choose the class \<any>, for example:
+
+    (lib.cont.lil.interface..<any>:
+
+and you'll see symbols specialised for that class.
+
+Try to find your more favorite system / class as example.
+
+
+
 #### Lazy system loading
 Third party systems are not listed as system dependencies in .asd file, but instead dynamically loaded as requested. For example, alexandria is not a dependency, but their symbols are in the lib-defs.lisp, and they are interned with symbol names ending with a ~.
 
@@ -79,17 +102,32 @@ If a symbol is exported from multiple systems/packages, then they are added to t
 
 ### Utilities
 
-#### (lib:apropos), (std:apropos)
-[TBD] Searches in the lib-* family.
+#### (lib:apropos-lib sub-str), (std:apropos-lib sub-str)
+Look for symbols containing sub-str in the lib hierarchy and
+print the matching branches.
+
+#### (lib:find-syms phrase), (std:find-syms phrase)
+Given a number of words in the phrase (first word for the symbol, others for
+description and package path, find the closest matches within the lib hierarchy.
+
+Match will be listed for: 
+    
+    (first phrase) contained in symbol name AND
+    (every (rest phrase)) contained in path or symbol description.
+    
+e.g.
+
+    (lib:find-syms "interface lil")
+    
+will list more results then:
+
+    (lib:find-syms "interface lil pure")
 
 #### (lib:packages), (std:packages)
 See the list of packages, printed with some grouping.
 
 #### (lib:get-package-names), (std:get-package-names)
 Get the list of package names under lib. or std.
-
-#### (std:clhs-sections)
-[TBD] Prints a mapping from clhs sections to lib-* top level.
 
 #### (lib:delete-this-system), (std:delete-this-system)
 Deletes all the LIB.* and STD.* packages and does an asdf:clear-system :lib-helper.
@@ -165,6 +203,8 @@ notes from my code:
 
 
 ## History
+### [2021-08-12]
+Classses as packages.
 
 ### [2021-08-09]
 For some packages, I had included only the symbols of a package if they originated from that package. Now the decision is to include all external symbols of a package instead. e.g. uiop:define-package's :use-reexport, or a package manually exporting its imported symbols.
