@@ -5,7 +5,8 @@
   :author "Albus M Piroglu <mattapiroglu@gmail.com>"
   :maintainer "Albus M Piroglu <mattapiroglu@gmail.com>"
   :licence "MIT"
-  :depends-on ("cl-ppcre")
+  :depends-on ("cl-ppcre"
+               "closer-mop")
   :components ((:file "home-package")
                (:file "known-libs" :depends-on ("home-package"))
                (:file "package-helpers" :depends-on ("home-package"))
