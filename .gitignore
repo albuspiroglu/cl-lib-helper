@@ -1,0 +1,6 @@
+.auth_keys
+*~
+*.fasl
+*.backup
+#*
+.#*
