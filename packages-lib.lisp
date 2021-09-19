@@ -15,36 +15,33 @@ eval during compile or load or execute time.
     (format t "=====Loaded lib:*, total ~a symbols.=====~%"
             (lib~:symbol-count lib~:*lib-package-tree*))
     (use-package :cl (find-package "LIB")))
-    
-  (in-package "LIB")
+  
 
-  (let ((pkg (find-package "LIB")))
-    (let ((f (intern "DELETE-THIS-SYSTEM" pkg)))
-      (setf (symbol-function f)
-            (lambda ()
-              (lib~:delete-system-aux))))
-    (let ((f (intern "GET-PACKAGE-NAMES" pkg)))
-      (setf (symbol-function f)
-            (lambda ()
-              (lib~:get-package-names-aux lib~:*lib-package-tree*))))
-    (let ((f (intern "PACKAGES" pkg)))
-      (setf (symbol-function f)
-            (lambda (&key (stream *standard-output*))
-              (lib~:packages-aux lib~:*lib-package-tree*
-                                 :stream stream))))
-    (let ((f (intern "SYMBOL-COUNT" pkg)))
-      (setf (symbol-function f)
-            (lambda ()
-              (lib~:symbol-count lib~:*lib-package-tree*))))
-    (let ((f (intern "APROPOS-LIB" pkg)))
-      (setf (symbol-function f)
-            (lambda (sub-str &optional (print-results t))
-              (lib~:apropos-lib sub-str lib~:*lib-package-tree* print-results))))
-    (let ((f (intern "FIND-SYMS" pkg)))
-      (setf (symbol-function f)
-            (lambda (phrase &optional (print-results t))
-              (lib~:find-syms phrase lib~:*lib-package-tree* print-results))))
-    )
+  (defun-in-package ("LIB" 'lib~:delete-system-aux "DELETE-THIS-SYSTEM")
+    (lambda ()
+      (lib~:delete-system-aux)))
+
+  (defun-in-package ("LIB" 'lib~:get-package-names-aux "GET-PACKAGE-NAMES")
+    (lambda ()
+      (lib~:get-package-names-aux lib~:*lib-package-tree*)))
+
+  (defun-in-package ("LIB" 'lib~:packages-aux "PACKAGES")
+    (lambda (&key (stream *standard-output*))
+      (lib~:packages-aux lib~:*lib-package-tree*
+                         :stream stream)))
+
+  (defun-in-package ("LIB" 'lib~:symbol-count "SYMBOL-COUNT")
+    (lambda ()
+      (lib~:symbol-count lib~:*lib-package-tree*)))
+
+  (defun-in-package ("LIB" 'lib~:find-syms "FIND-SYMS")
+    (lambda (phrase &optional (print-results t))
+      (lib~:find-syms phrase lib~:*lib-package-tree* print-results)))
+
+  (defun-in-package ("LIB" 'lib~:apropos-lib "APROPOS-LIB")
+    (lambda (sub-str &optional (print-results t))
+      (lib~:apropos-lib sub-str lib~:*lib-package-tree* print-results)))
+
   )
 
 (eval-when (:execute :load-toplevel)

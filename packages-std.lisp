@@ -16,35 +16,34 @@ eval during compile or load or execute time.
             (lib~:symbol-count lib~:*std-package-tree*))
     (use-package :cl (find-package "STD")))
 
-  (in-package "STD")
+;;  (in-package "STD")
 
-  (let ((pkg (find-package "STD")))
-    (let ((f (intern "DELETE-THIS-SYSTEM" pkg)))
-      (setf (symbol-function f)
-            (lambda ()
-              (lib~:delete-system-aux))))
-    (let ((f (intern "GET-PACKAGE-NAMES" pkg)))
-      (setf (symbol-function f)
-            (lambda ()
-              (lib~:get-package-names-aux lib~:*std-package-tree*))))
-    (let ((f (intern "PACKAGES" pkg)))
-      (setf (symbol-function f)
-            (lambda (&key (stream *standard-output*))
-              (lib~:packages-aux lib~:*std-package-tree*
-                                 :stream stream))))
-    (let ((f (intern "SYMBOL-COUNT" pkg)))
-      (setf (symbol-function f)
-            (lambda ()
-              (lib~:symbol-count lib~:*std-package-tree*))))
-    (let ((f (intern "APROPOS-LIB" pkg)))
-      (setf (symbol-function f)
-            (lambda (sub-str &optional (print-results t))
-              (lib~:apropos-lib sub-str lib~:*std-package-tree* print-results))))
-    (let ((f (intern "FIND-SYMS" pkg)))
-      (setf (symbol-function f)
-            (lambda (phrase &optional (print-results t))
-              (lib~:find-syms phrase lib~:*std-package-tree* print-results))))
-    )
+  (defun-in-package ("STD" 'lib~:delete-system-aux "DELETE-THIS-SYSTEM")
+    (lambda ()
+      (lib~:delete-system-aux)))
+
+  (defun-in-package ("STD" 'lib~:get-package-names-aux "GET-PACKAGE-NAMES")
+    (lambda ()
+      (lib~:get-package-names-aux lib~:*std-package-tree*)))
+
+  (defun-in-package ("STD" 'lib~:packages-aux "PACKAGES")
+    (lambda (&key (stream *standard-output*))
+      (lib~:packages-aux lib~:*std-package-tree*
+                         :stream stream)))
+
+  (defun-in-package ("STD" 'lib~:symbol-count "SYMBOL-COUNT")
+    (lambda ()
+      (lib~:symbol-count lib~:*std-package-tree*)))
+
+  (defun-in-package ("STD" 'lib~:find-syms "FIND-SYMS")
+    (lambda (phrase &optional (print-results t))
+      (lib~:find-syms phrase lib~:*std-package-tree* print-results)))
+
+
+  (defun-in-package ("STD" 'lib~:apropos-lib "APROPOS-LIB")
+    (lambda (sub-str &optional (print-results t))
+      (lib~:apropos-lib sub-str lib~:*std-package-tree* print-results)))
+
   )
 
 (eval-when (:compile-toplevel :execute :load-toplevel)

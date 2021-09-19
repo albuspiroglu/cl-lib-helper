@@ -984,7 +984,7 @@ print-results: if t (default), print the results instead of returning a list.
 
 ;; lil:
 (lambda ()
-  (with-open-file (f "temp-defs.lisp" :direction :output :if-exists :supersede)
+  (with-open-file (f "temp-defs.lisp~" :direction :output :if-exists :supersede)
     (generate-system-symbols "lil" "LIB.CONT"
                              '(("LIL/CORE/ALL" "LIL.CORE")
                                ("LIL/INTERFACE/ALL" "LIL.INTERFACE")
@@ -994,7 +994,7 @@ print-results: if t (default), print the results instead of returning a list.
                                ("LIL/TRANSFORM/POSH" "LIL.POSH"))
                              f))
 
-  (with-open-file (f "temp-defs.lisp" :direction :output :if-exists :supersede)
+  (with-open-file (f "temp-defs.lisp~" :direction :output :if-exists :supersede)
     (generate-system-symbols "cl-ppcre" "LIB.STR"
                              '(("CL-PPCRE" "ppcre"))
                              f)))
