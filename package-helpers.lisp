@@ -6,11 +6,18 @@
              :accessor branches
              :type list))
 
-  (:documentation "The list that defines the library hierarchy."))
+  (:documentation "A library hierarchy (a.k.a. package-tree) is defined with this type. 
+                   It is essentially a list."))
 
-(defvar <lib-hierarchy> (make-instance 'lib-hierarchy))
 ;; sbcl barfs at this: (defvar <lib-hierarchy> (c2mop:class-prototype 'lib-hierarchy))
-(defvar <list> nil)
+;; that's why I'm creating a direct instance of the lib-hierarchy below
+(defvar <lib-hierarchy> 
+  (make-instance 'lib-hierarchy)
+  "An empty object to be passed to generic functions as an interface. 
+Idea partially from lil library.")
+
+(defvar <list> nil 
+  "An empty object to be passed to generic functions as an interface.")
 
 (defclass lib-hierarchy-branch ()
   ((path :initarg :path
@@ -22,7 +29,8 @@
    (parent :initarg :parent
            :accessor parent
            :type lib-hierarchy
-           :documentation "A link to the package-tree of this branch (either std-tree or lib-tree).")
+           :documentation "A link to the package-tree of this branch (this will be 
+                           either std-tree or lib-tree).")
    
    (path-desc :initarg :path-desc
               :accessor path-desc
@@ -33,7 +41,7 @@
                 :accessor lib-symbols
                 :type list-of-lib-symbols))
 
-  (:documentation "A package tree branch.
+  (:documentation "A branch of a lib-hierarchy / package tree.
 A branch is e.g.:
 (\"LIB.CONT.LIST.CREATE\" \"List creation\" 
      ((\"CIRCULAR-LIST\" (\"alexandria\" \"ALEXANDRIA\")) ; symbols list start here
@@ -43,7 +51,8 @@ A branch is e.g.:
       "))
 
 
-(defvar <lib-hierarchy-branch> (make-instance 'lib-hierarchy-branch))
+(defvar <lib-hierarchy-branch> (make-instance 'lib-hierarchy-branch)
+  "An empty object to be passed to generic functions as an interface.")
 
 (defclass lib-symbol ()
   ((sym-name :initarg :sym-name
@@ -82,7 +91,8 @@ A branch is e.g.:
       to a closure that'll load the system then import all symbols from the system to
       their branches."))
 
-(defvar <lib-symbol> (make-instance 'lib-symbol))
+(defvar <lib-symbol> (make-instance 'lib-symbol)
+  "An empty object to be passed to generic functions as an interface.")
 
 (defun lib-symbolp (obj) (typep obj 'lib-symbol))
 
@@ -118,7 +128,8 @@ A branch is e.g.:
   (:documentation "A type that contains the symbol, the hierarchy in tree and full description
                    of the symbol. Used by find-sym and match functions."))
 
-(defvar <symbol-and-desc> (make-instance 'symbol-and-desc))
+(defvar <symbol-and-desc> (make-instance 'symbol-and-desc)
+  "An empty object to be passed to generic functions as an interface.")
 
 (defclass method-detail ()
   ((method-obj :initarg :method-obj
@@ -133,7 +144,8 @@ A branch is e.g.:
 
   (:documentation "Details of a method."))
 
-(defvar <method-detail> (make-instance 'method-detail))
+(defvar <method-detail> (make-instance 'method-detail)
+  "An empty object to be passed to generic functions as an interface.")
 
 (defmethod print-object ((obj method-detail) stream)
   (print-unreadable-object (obj stream :type nil :identity t)
@@ -161,8 +173,11 @@ A branch is e.g.:
   (:documentation "A tree for a generic function including its methods and their
                    lambda lists."))
 
-(defvar <gf-tree> (make-instance 'gf-tree))
-(defvar <symbol> (make-symbol "<SYMBOL>"))
+(defvar <gf-tree> (make-instance 'gf-tree)
+  "An empty object to be passed to generic functions as an interface.")
+
+(defvar <symbol> (make-symbol "<SYMBOL>")
+  "An empty object to be passed to generic functions as an interface.")
 
 (defmethod print-object ((obj gf-tree) stream)
   (print-unreadable-object (obj stream :type nil :identity t)

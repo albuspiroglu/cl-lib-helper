@@ -13,7 +13,8 @@
            "SYMBOL-COUNT"
            "GENERATE-PACKAGE-SYMBOLS"
            "APROPOS-LIB"
-           "FIND-SYMS"))
+           "FIND-SYMS"
+           "DEFUN-IN-PACKAGE"))
 
 (in-package "LIB~")
 
