@@ -1,6 +1,8 @@
 .auth_keys
 *~
 *.fasl
+*.64ufasl
+*.abcl
 *.backup
 #*
 .#*

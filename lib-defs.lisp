@@ -1,12 +1,12 @@
 (in-package "LIB~")
 
 ;; This is a tree of lib.* family packages.
-;; 
+;;
 ;; Each package is defined as:
 ;;   (Package-name Description Symbol-List)
 ;;   Package-name: string
 ;;   Description : string
-;; 
+;;
 ;; Symbol-List:
 ;;   (list Symbol-Details*)
 ;;
@@ -33,8 +33,7 @@
 (defvar *lib-package-tree*
   (convert
    <lib-hierarchy> <list>
-   '(("LIB" "Top level"
-      ())
+   '(
      ("LIB.FUN" "Functions"
       (("DEFUN" (NIL "CL"))
        ("VALUES" (NIL "CL"))
@@ -398,7 +397,7 @@
        ("SET-EQUAL" ("alexandria" "ALEXANDRIA"))
        ("SETP" ("alexandria" "ALEXANDRIA"))
        ))
-    
+
      ("LIB.CONT.CLC" "CL-CONTAINERS"
       (("ABSTRACT-CONTAINER" ("cl-containers" "CL-CONTAINERS"))
        ("ABSTRACT-QUEUE" ("cl-containers" "CL-CONTAINERS"))
@@ -425,7 +424,7 @@
        ("SORTED-LIST-CONTAINER" ("cl-containers" "CL-CONTAINERS"))
        ("STACK-CONTAINER" ("cl-containers" "CL-CONTAINERS"))
        ("VECTOR-CONTAINER" ("cl-containers" "CL-CONTAINERS"))
-      
+
        ))
      ("LIB.CONT.CLC.OPS" "CL-CONTAINERS Basic container operations"
       (("ADD-INDEX" ("cl-containers" "CL-CONTAINERS"))
@@ -543,7 +542,7 @@
        ("TABLE-NAMED" ("cl-containers" "CL-CONTAINERS"))
        ("UPDATE-INDEX" ("cl-containers" "CL-CONTAINERS"))
        ("UPDATE-RECORD" ("cl-containers" "CL-CONTAINERS"))
-      
+
        ))
      ("LIB.CONT.CLC.OPS.QUEUE" "CL-CONTAINERS queue operations"
       (("ENQUEUE" ("cl-containers" "CL-CONTAINERS"))
@@ -578,26 +577,26 @@
        ("ITEM-AT-1!" ("cl-containers" "CL-CONTAINERS"))
        ("DIMENSIONS" ("cl-containers" "CL-CONTAINERS"))
        ("ITERATE-KEY-VALUE" ("cl-containers" "CL-CONTAINERS"))
-      
+
        ))
      ("LIB.CONT.CLC.OPS.NODE" "CL-CONTAINERS node operations"
       (("CHILDREN" ("cl-containers" "CL-CONTAINERS"))
        ("CONTENTS" ("cl-containers" "CL-CONTAINERS"))
        ("FIND-CHILD-NODE" ("cl-containers" "CL-CONTAINERS"))
-      
+
        ))
      ("LIB.CONT.CLC.OPS.QUADT" "CL-CONTAINERS quad-tree operations"
       (("NOTIFY-ELEMENT-OF-CHILD-STATUS" ("cl-containers" "CL-CONTAINERS"))
-      
+
        ))
      ("LIB.CONT.CLC.OPS.SORTEDLIST" "CL-CONTAINERS sorted-list operations"
       (("ENSURE-SORTED" ("cl-containers" "CL-CONTAINERS"))
        ("FORCE-SORT" ("cl-containers" "CL-CONTAINERS"))
        ("UPDATE-ITEM" ("cl-containers" "CL-CONTAINERS"))
-      
+
        ))
 
-        
+
      ("LIB.CONT.LIL" "LIL, Lisp interface library"
       (
        ))
@@ -6002,7 +6001,7 @@
        ))
 
 
-    
+
      ("LIB.PATTERNS" "Patterns"
       (("DESTRUCTURING-BIND" (NIL "CL"))
        ))
@@ -6038,7 +6037,7 @@
        ("LOWER-CASE-P" (NIL "CL"))
 
        ("STRING-DESIGNATOR" ("alexandria" "ALEXANDRIA"))
-      
+
        ))
 
      ("LIB.STR.RE" "Regular expressions. Package: CL-PPCRE"
@@ -6079,7 +6078,7 @@
       (("PPCRE-SYNTAX-ERROR-POS" ("cl-ppcre" "CL-PPCRE"))
        ("PPCRE-SYNTAX-ERROR-STRING" ("cl-ppcre" "CL-PPCRE"))
        ))
-    
+
      ("LIB.STR.COMP" "String comparison"
       (("STRING<" (NIL "CL"))
        ("STRING-NOT-EQUAL" (NIL "CL"))
@@ -6208,7 +6207,7 @@
        ("MAKE-GENSYM" ("alexandria" "ALEXANDRIA"))
        ("MAKE-GENSYM-LIST" ("alexandria" "ALEXANDRIA"))
        ("MAKE-KEYWORD" ("alexandria" "ALEXANDRIA"))
-      
+
        ))
      ("LIB.LANG" "CL Language"
       ())
@@ -6283,7 +6282,7 @@
        ("LOAD-FROM-STRING"  ("asdf" "UIOP/LISP-BUILD"))
        ("COMBINE-FASLS"  ("asdf" "UIOP/LISP-BUILD"))
        ("WARN-ON-DEFMETHOD-WITHOUT-GENERIC-FUNCTION" ("closer-mop" "C2MOP"))
-      
+
        ))
      ("LIB.LANG.BLOCKS" "Code blocks"
       (("LOOP" (NIL "CL"))
@@ -6356,7 +6355,7 @@
        ("MULTIPLE-VALUE-PROG1" (NIL "CL"))
        ("PROG2" (NIL "CL"))
        ("DO*" (NIL "CL"))
-      
+
        ("CSWITCH" ("alexandria" "ALEXANDRIA"))
        ("ESWITCH" ("alexandria" "ALEXANDRIA"))
        ("SWITCH" ("alexandria" "ALEXANDRIA"))
@@ -6364,9 +6363,9 @@
        ("NTH-VALUE-OR" ("alexandria" "ALEXANDRIA"))
        ("WHICHEVER" ("alexandria" "ALEXANDRIA"))
        ("XOR" ("alexandria" "ALEXANDRIA"))
-      
+
        ))
-    
+
      ("LIB.LANG.FLOW.ITER" "Loop alternative iterator"
       (("ITERATE" ("iterate" "ITER"))
        ("ITER" ("iterate" "ITER"))
@@ -6491,7 +6490,7 @@
        ("PARSE-ORDINARY-LAMBDA-LIST" ("alexandria" "ALEXANDRIA"))
        ("WITH-GENSYMS" ("alexandria" "ALEXANDRIA"))
        ("WITH-UNIQUE-NAMES" ("alexandria" "ALEXANDRIA"))
-      
+
        ))
      ("LIB.DATETIME" "Datetime"
       (("GET-UNIVERSAL-TIME" (NIL "CL"))
@@ -6685,7 +6684,7 @@
        ("WRITE-BYTE-VECTOR-INTO-FILE" ("alexandria" "ALEXANDRIA"))
        ("COPY-STREAM" ("alexandria" "ALEXANDRIA"))
        ("COPY-FILE" ("alexandria" "ALEXANDRIA"))
-      
+
        ))
      ("LIB.STREAMS" "Streams"
       (("BROADCAST-STREAM" (NIL "CL"))
@@ -6797,7 +6796,7 @@
        ("ADD-PATHNAME-SUFFIX"  ("asdf" "UIOP/STREAM"))
        ("TMPIZE-PATHNAME"  ("asdf" "UIOP/STREAM"))
        ("CALL-WITH-STAGING-PATHNAME"  ("asdf" "UIOP/STREAM"))
-       ("WITH-STAGING-PATHNAME"  ("asdf" "UIOP/STREAM"))      
+       ("WITH-STAGING-PATHNAME"  ("asdf" "UIOP/STREAM"))
        ))
      ("LIB.OS" "Operating system"
       (("FEATUREP"  ("asdf" "UIOP/OS"))
@@ -6822,7 +6821,7 @@
        ("READ-LITTLE-ENDIAN"  ("asdf" "UIOP/OS"))
        ("PARSE-FILE-LOCATION-INFO"  ("asdf" "UIOP/OS"))
        ("PARSE-WINDOWS-SHORTCUT"  ("asdf" "UIOP/OS"))
-      
+
        ))
      ("LIB.OS.PATH" "OS path"
       (("PATHNAME" (NIL "CL"))
@@ -6858,9 +6857,9 @@
        ("HOST-NAMESTRING" (NIL "CL"))
        ("MAKE-PATHNAME" (NIL "CL"))
        ("LOGICAL-PATHNAME" (NIL "CL") ("asdf" "UIOP/COMMON-LISP"))
-      
+
        ("NATIVE-NAMESTRING"  ("asdf" "UIOP/FILESYSTEM"))
-      
+
        ("GET-PATHNAME-DEFAULTS"  ("asdf" "UIOP/FILESYSTEM"))
        ("CALL-WITH-CURRENT-DIRECTORY"  ("asdf" "UIOP/FILESYSTEM"))
        ("WITH-CURRENT-DIRECTORY"  ("asdf" "UIOP/FILESYSTEM"))
@@ -6894,7 +6893,7 @@
        ("DIRECTORY-PATHNAME-P"  ("asdf" "UIOP/PATHNAME"))
        ("ENSURE-DIRECTORY-PATHNAME"  ("asdf" "UIOP/PATHNAME"))
        ))
-    
+
      ("LIB.OS.PATH.PARSING" "Parsing filenames"
       (
        ("PARSE-NAMESTRING" (NIL "CL"))
@@ -6996,8 +6995,8 @@
        ("GETENV-ABSOLUTE-DIRECTORY"  ("asdf" "UIOP/FILESYSTEM"))
        ("GETENV-ABSOLUTE-DIRECTORIES"  ("asdf" "UIOP/FILESYSTEM"))
        ("LISP-IMPLEMENTATION-DIRECTORY"  ("asdf" "UIOP/FILESYSTEM"))
-       ("LISP-IMPLEMENTATION-PATHNAME-P"  ("asdf" "UIOP/FILESYSTEM")) 
-      
+       ("LISP-IMPLEMENTATION-PATHNAME-P"  ("asdf" "UIOP/FILESYSTEM"))
+
        ))
 
      ("LIB.OS.SUBP" "Subprocesses"
@@ -7010,7 +7009,7 @@
        ("ESCAPE-SHELL-COMMAND"  ("asdf" "UIOP/LAUNCH-PROGRAM"))
        ("ESCAPE-TOKEN"  ("asdf" "UIOP/LAUNCH-PROGRAM"))
        ("ESCAPE-COMMAND"  ("asdf" "UIOP/LAUNCH-PROGRAM"))
-      
+
        ("LAUNCH-PROGRAM"  ("asdf" "UIOP/LAUNCH-PROGRAM"))
        ("CLOSE-STREAMS"  ("asdf" "UIOP/LAUNCH-PROGRAM"))
        ("PROCESS-ALIVE-P"  ("asdf" "UIOP/LAUNCH-PROGRAM"))
@@ -7029,7 +7028,7 @@
        ("SUBPROCESS-ERROR-COMMAND"  ("asdf" "UIOP/RUN-PROGRAM"))
        ("SUBPROCESS-ERROR-PROCESS"  ("asdf" "UIOP/RUN-PROGRAM"))
 
-      
+
        ))
      ("LIB.MATH.NUM.LIMITS" "Math numeric limits"
       (("SHORT-FLOAT-EPSILON" (NIL "CL"))
@@ -7135,7 +7134,7 @@
 
        ("IOTA" ("alexandria" "ALEXANDRIA"))
        ("MAP-IOTA" ("alexandria" "ALEXANDRIA"))
-      
+
        ))
      ("LIB.MATH.NUM.BITS" "Bitwise arithmetic"
       (("BYTE-POSITION" (NIL "CL"))
@@ -7203,7 +7202,7 @@
        ("ACOSH" (NIL "CL"))
        ("COS" (NIL "CL"))
        ("ACOS" (NIL "CL"))
-      
+
        ))
      ("LIB.MATH.PROB" "Probability"
       (("RANDOM" (NIL "CL"))
@@ -7221,7 +7220,7 @@
        ("VARIANCE" ("alexandria" "ALEXANDRIA"))
 
        ))
-    
+
 
      ("LIB.MATH.FUNC" "Math functions"
       (("SQRT" (NIL "CL"))
@@ -7332,7 +7331,7 @@
        ("RESTART" (NIL "CL"))
        ("*INVOKE-DEBUGGER-HOOK*" (NIL "CL"))
        ("*DEBUGGER-HOOK*" (NIL "CL"))
-      
+
        ("REQUIRED-ARGUMENT" ("alexandria" "ALEXANDRIA"))
        ("IGNORE-SOME-CONDITIONS" ("alexandria" "ALEXANDRIA"))
        ("SIMPLE-STYLE-WARNING" ("alexandria" "ALEXANDRIA"))
@@ -7344,7 +7343,7 @@
        ))
      ("LIB.CLOS" "CLOS"
       (
-      
+
        ))
 
      ("LIB.CLOS.CLASS" "CLOS Classes"
@@ -7398,7 +7397,7 @@
        ("UPDATE-DEPENDENT" ("closer-mop" "C2MOP"))
        ("VALIDATE-SUPERCLASS" ("closer-mop" "C2MOP"))
        ("WRITER-METHOD-CLASS" ("closer-mop" "C2MOP"))
-      
+
        ))
      ("LIB.CLOS.GENERIC" "Generic methods"
       (("&ALLOW-OTHER-KEYS" (NIL "CL"))
@@ -7444,7 +7443,7 @@
        ("SPECIALIZER-DIRECT-GENERIC-FUNCTIONS" ("closer-mop" "C2MOP"))
        ("SPECIALIZER-DIRECT-METHODS" ("closer-mop" "C2MOP"))
        ("UPDATE-DEPENDENT" ("closer-mop" "C2MOP"))
-      
+
        ))
      ("LIB.CLOS.OBJ" "CLOS Objects/Instances"
       (("ALLOCATE-INSTANCE" (NIL "CL"))
@@ -7474,14 +7473,14 @@
        ("UPDATE-INSTANCE-FOR-REDEFINED-CLASS" (NIL "CL"))
        ("WITH-SLOTS" (NIL "CL"))
        ("WITH-ACCESSORS" (NIL "CL"))
-      
+
        ))
      ("LIB.CLOS.STRUCT" "Structs"
       (("COPY-STRUCTURE" (NIL "CL"))
        ("DEFSTRUCT" (NIL "CL"))
        ("STRUCTURE-OBJECT" (NIL "CL"))
        ("STRUCTURE" (NIL "CL"))
-      
+
        ))
      ("LIB.CLOS.TYPES" "CLOS types"
       (("GENERIC-FUNCTION" (NIL "CL"))
@@ -7518,7 +7517,7 @@
        ("STANDARD-READER-METHOD" ("closer-mop" "C2MOP"))
        ("STANDARD-SLOT-DEFINITION" ("closer-mop" "C2MOP"))
        ("STANDARD-WRITER-METHOD" ("closer-mop" "C2MOP"))
-      
+
        ))
      ("LIB.TYPES" "Types"
       (("CLASS-OF" (NIL "CL"))
@@ -7675,4 +7674,3 @@ first item: package name
 second item: package description
 third     : a list of:
   (symbol-name-to-export (original-package-name system-name) (opn2 sysname2) ..)")
-

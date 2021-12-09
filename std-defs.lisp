@@ -22,8 +22,7 @@
 (defvar *std-package-tree*
   (convert
    <lib-hierarchy> <list>
-   '(("STD" "Top level"
-      ())
+   '(
      ("STD.FUN" "Functions"
       (("DEFUN" (NIL "CL"))
        ("VALUES" (NIL "CL"))

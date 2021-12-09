@@ -22,12 +22,14 @@
                         ("cl-ppcre" t)
                         ("closer-mop" t)
                         ("iterate" t)
-                        ("lil" t)
+                        ("lil" nil)
                         ("cl-containers" t))))
     (dolist (sys system-table)
       (setf (gethash (first sys) *system-table*)
-            ;; no system is loaded yet, put nil for second element
-            (list (second sys) nil)))))
+            (make-system sys))))
+  )
+
+
 
 ;; Dev helper to test some internal functions, for later reference.
 (defvar *lib-package-test*
@@ -37,4 +39,3 @@
      (("QUIT"  ("asdf" "UIOP/IMAGE"))
       )))
   "Dev helper for testing internal functions.")
-

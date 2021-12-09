@@ -1,3 +1,8 @@
+
+(defpackage lib-helper-asd
+  (:use :cl :asdf))
+
+(in-package :lib-helper-asd)
  
 (defsystem "lib-helper"
   :description "Reorganise existing symbols in standard and third party libs to common hierarchical packages."
@@ -16,17 +21,49 @@
                 :depends-on (package-helpers)
                 :components
                 ((:file "std-defs")
-                 (:file "packages-std" :depends-on ("std-defs"))))
+                 (:file "packages-std" :depends-on ("std-defs")))
+                :perform (load-op :after (op std-lib)
+                                  (lib-helper-asd::prepare-std-libs)))
 
                (:module libs
                 :pathname ""
                 :depends-on (package-helpers)
                 :components
                 ((:file "lib-defs")
-                 (:file "packages-lib" :depends-on ("lib-defs")))))
+                 (:file "packages-lib" :depends-on ("lib-defs")))
+                :perform (load-op :after (op libs)
+                                  (lib-helper-asd::prepare-libs))))
                
   :long-description
   #.(uiop:read-file-string
      (uiop:subpathname *load-pathname* "README.md"))
 )
+
+(defun prepare-std-libs ()
+  (let* ((plib (find-package "LIB~"))
+         (setup-packages (symbol-function (find-symbol "SETUP-PACKAGES" plib)))
+         (std-package-tree-symbol (find-symbol "*STD-PACKAGE-TREE*" plib))
+         (std-package-tree (symbol-value std-package-tree-symbol))
+         (symbol-count (symbol-function (find-symbol "SYMBOL-COUNT" plib)))
+         (package-lists-symbol (find-symbol "*PACKAGE-LISTS*" plib))
+         (package-lists (symbol-value package-lists-symbol))
+         (add-to-package-lists (symbol-function (find-symbol "ADD-TO-PACKAGE-LISTS" plib))))
+    (funcall setup-packages std-package-tree)
+    (format t "====Loaded std:*, total ~a symbols.====~%"
+            (funcall symbol-count std-package-tree))
+    (funcall add-to-package-lists std-package-tree-symbol)))
+
+(defun prepare-libs ()
+  (let* ((plib (find-package "LIB~"))
+         (setup-packages (symbol-function (find-symbol "SETUP-PACKAGES" plib)))
+         (lib-package-tree-symbol (find-symbol "*LIB-PACKAGE-TREE*" plib))
+         (lib-package-tree (symbol-value lib-package-tree-symbol))
+         (symbol-count (symbol-function (find-symbol "SYMBOL-COUNT" plib)))
+         (package-lists-symbol (find-symbol "*PACKAGE-LISTS*" plib))
+         (package-lists (symbol-value package-lists-symbol))
+         (add-to-package-lists (symbol-function (find-symbol "ADD-TO-PACKAGE-LISTS" plib))))
+    (funcall setup-packages lib-package-tree)
+    (format t "=====Loaded lib:*, total ~a symbols.=====~%"
+            (funcall symbol-count lib-package-tree))
+    (funcall add-to-package-lists lib-package-tree-symbol)))
 

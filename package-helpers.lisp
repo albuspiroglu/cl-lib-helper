@@ -6,17 +6,17 @@
              :accessor branches
              :type list))
 
-  (:documentation "A library hierarchy (a.k.a. package-tree) is defined with this type. 
+  (:documentation "A library hierarchy (a.k.a. package-tree) is defined with this type.
                    It is essentially a list."))
 
 ;; sbcl barfs at this: (defvar <lib-hierarchy> (c2mop:class-prototype 'lib-hierarchy))
 ;; that's why I'm creating a direct instance of the lib-hierarchy below
-(defvar <lib-hierarchy> 
+(defvar <lib-hierarchy>
   (make-instance 'lib-hierarchy)
-  "An empty object to be passed to generic functions as an interface. 
+  "An empty object to be passed to generic functions as an interface.
 Idea partially from lil library.")
 
-(defvar <list> nil 
+(defvar <list> nil
   "An empty object to be passed to generic functions as an interface.")
 
 (defclass lib-hierarchy-branch ()
@@ -29,21 +29,21 @@ Idea partially from lil library.")
    (parent :initarg :parent
            :accessor parent
            :type lib-hierarchy
-           :documentation "A link to the package-tree of this branch (this will be 
+           :documentation "A link to the package-tree of this branch (this will be
                            either std-tree or lib-tree).")
-   
+
    (path-desc :initarg :path-desc
               :accessor path-desc
               :type string
               :documentation "Description of the path or package.")
-   
+
    (lib-symbols :initarg :lib-symbols
                 :accessor lib-symbols
                 :type list-of-lib-symbols))
 
   (:documentation "A branch of a lib-hierarchy / package tree.
 A branch is e.g.:
-(\"LIB.CONT.LIST.CREATE\" \"List creation\" 
+(\"LIB.CONT.LIST.CREATE\" \"List creation\"
      ((\"CIRCULAR-LIST\" (\"alexandria\" \"ALEXANDRIA\")) ; symbols list start here
       (\"CONS\" (NIL \"CL\"))
       (\"COPY-LIST\" (NIL \"CL\"))
@@ -70,7 +70,7 @@ A branch is e.g.:
    (parent :initarg :parent
            :accessor parent
            :type lib-hierarchy-branch)
-   
+
    (full-desc :initarg :full-desc
               :accessor full-desc
               :type string
@@ -83,7 +83,7 @@ A branch is e.g.:
                          First one is named the same as sym-name, subsequent ones appended
                          an increasing number, from 1. If lazy-interned, then ~ or {.N}~, n
                          being the same number."))
-                             
+
   (:documentation "When there are multiple sys-pkg, multiple symbols will be created in the branch,
       first one with the symbol's name, subsequent ones having a {.N}~, N in (1,2..).
       Also there's a lazy interning process. If a system is not loaded, then its symbols
@@ -113,18 +113,18 @@ A branch is e.g.:
         :reader sym
         :type symbol
         :documentation "The symbol")
-   
+
    (hierarchy-name :initarg :hierarchy-name
                    :reader hierarchy-name
                    :type string
                    :documentation "The lib-tree hierarchy path.")
-   
+
    (full-desc :initarg :full-desc
               :accessor full-desc
               :type string
               :documentation "Hierarchy path + all namespace descriptions of the
                               symbol combined."))
-  
+
   (:documentation "A type that contains the symbol, the hierarchy in tree and full description
                    of the symbol. Used by find-sym and match functions."))
 
@@ -185,7 +185,7 @@ A branch is e.g.:
 
 (defgeneric convert (destination origin obj &key &allow-other-keys)
   (:documentation "Convert obj from type origin to type destination.")
-  
+
   (:method ((destination symbol-and-desc) (origin lib-symbol) obj &key &allow-other-keys)
    (let ((path-name (path (parent obj))))
      (make-instance
@@ -252,31 +252,33 @@ A branch is e.g.:
        (if ,sys-var
            (progn
              ,@body)
-         (error "System name ~a not found in *system-table*, consider adding it?~%"
+         (error "System name ~a not found in *system-table*, consider adding
+it in known-libs.lisp?~%"
                 ,name)))))
 
 (defun %set-loaded (sys-name)
   (%with-system (system sys-name)
-    (setf (second system) t)))
+    (setf (system-loaded system) t)))
 
 (defun %loaded? (sys-name)
   (if sys-name
       (%with-system (system sys-name)
-        (second system))
+        (system-loaded system))
     t))
- 
+
 (defun %should-load-at-startup (sys-name)
   "Return t if sys-name should be loaded. This depends on load-at-startup and (already)
 loaded values."
   (if sys-name
       (%with-system (system sys-name)
-        (and (first system) (not (second system))))
+        (and (system-import-symbols-at-startup system)
+             (not (system-loaded system))))
     ;; nil sys-name means cl std pkg, no loading
     nil))
 
 (defun %asdf-system-loaded (sys-name)
-  (find sys-name (asdf:already-loaded-systems) :test #'equalp))
-  
+  (asdf:registered-system sys-name))
+
 (defun %maybe-load-at-startup (system)
   "asdf load the system if necessary.
 system: '(sys-name from-package-name)"
@@ -288,15 +290,17 @@ system: '(sys-name from-package-name)"
         (unless (or (%asdf-system-loaded (first system))
                     (find-package (second system)))
           (error "=========A symbol is exported from system ~a, but it is currently
-not loaded. Either load the system before lib-helper, or remove the flag to
-import-symbols-at-startup in known-libs.lisp.~%" (first system)))
+not loaded. Either load the system before lib-helper, or remove its flag to
+import-symbols-at-startup in known-libs.lisp. (second system: ~A)~%"
+                 (first system)
+                 (second system)))
         (%set-loaded (first system))
         t)
     nil))
 
 (defun %append-not-loaded-suffix (sym-name)
   (concatenate 'string sym-name "~"))
- 
+
 (defun %get-target-sym-name (sym-name index &key (loaded nil))
   "Name of the symbol to create depends on how many systems / packages are
 exporting the symbol. If more than one, than the first one is the sym-name,
@@ -358,7 +362,7 @@ sys: (list sys-name package-name)
                                      to-pkg)
                         to-pkg)
               (export sym to-pkg))))))))
-  
+
 (defun %activate-system (sys pkg-tree)
   "asdf:load the system and for every symbol of it
 import-export them in the tree."
@@ -381,7 +385,7 @@ delete the symbol with the ~ at the end.
     (setf (symbol-function new-sym)
           (lambda () (%activate-system sys pkg-tree)))
     new-sym))
-   
+
 (defun %lazy-intern (lib-sym sym-cnt to-pkg)
   "sys: (sys-name package-name)
 
@@ -400,7 +404,7 @@ Intern a symbol, and return that symbol name (package relative).
                      (find-symbol (sym-name lib-sym) from-package)
                      to-pkg)
       (%intern-later new-sym-name sys to-pkg (parent (parent lib-sym))))))
-  
+
 (defun %import-and-get-symbols (lib-sym to-pkg)
   "For one target symbol, return a list of symbols which are either from a
 system-package, or a list of sym-nameN{~}* where ~ is optional. See
@@ -437,7 +441,7 @@ lib.lvl1.lvl2..class1, return lib.lvl1.lvl2"
                         "lib.lvl1"))
   (assert (string-equal (%get-parent-name "lib")
                         "")))
- 
+
 (defun %get-sub-packages (pkg-name package-tree)
   "pkg-name: string
 Returns a list of paths that are sub packages of pkg-name."
@@ -446,7 +450,7 @@ Returns a list of paths that are sub packages of pkg-name."
       (if (string-equal (%get-parent-name (path p))
                         pkg-name)
           (push (path p) subs)))))
- 
+
 (defun %add-sub-packages (h-branch parent-pkg)
   (dolist (s (%get-sub-packages (path h-branch) (parent h-branch)))
     (let ((sym (intern (subseq s (length (path h-branch)))
@@ -475,7 +479,7 @@ an item in %doc-sys%, return the documentation if any."
   (if (funcall (first doc-sys) sym)
       (or (documentation sym (second doc-sys)) "")
     ""))
-  
+
 (defun %get-sym-desc (sym)
   "Given a symbol, return its corresponding description. If there are descriptions in
 more than one namespace (function, variable, class, etc.), combine the results."
@@ -499,7 +503,7 @@ more than one namespace (function, variable, class, etc.), combine the results."
       (%set-full-desc s))
     (export syms to-pkg)
     (%add-sub-packages p to-pkg)))
-  
+
 (defun %define-subpackages (package-tree)
   (dolist (branch (branches package-tree))
     (%define-sub-package-syms branch)))
@@ -609,7 +613,7 @@ list of gf-tree.
     (format stream "(~s (~s ~s))~%"
             (first s) (caadr s) (cadadr s)))
   (format stream "))~%"))
- 
+
 (defun %format-package-tree-syms (tree stream)
   (dolist (branch tree)
     (%format-package-tree-branch-syms branch stream)))
@@ -623,7 +627,7 @@ list of gf-tree.
             (concatenate 'string "SETF-" (%symbol-full-string (second sym)))
           (%symbol-full-string sym))
         (list sys-name package-name)))
- 
+
 
 (defun %filter-external-syms (names pkg)
   (let (result)
@@ -646,7 +650,7 @@ slot names, then a reduction in this set will give us a confident result."
                   s))))
     (mapcar (lambda (w) (%mkstr struct-name "-" (subseq w 1 (1- (length w)))))
             (cl-ppcre:all-matches-as-strings ":[^:].+? " struct-form))))
-  
+
 (defun %get-struct-externals (struct-name package-name)
   "Given a struct name, check for each struct name and return the
 package-external ones as a list."
@@ -673,7 +677,7 @@ package-external ones as a list."
         #+lispworks (find-class 'clos::dependee-mixin)
         #+lispworks (find-class 'clos::specializer)
         #+lispworks (find-class 'harlequin-common-lisp:metaobject)
-        
+
         ))
 
 (defun %in-skipped-classes (c)
@@ -703,7 +707,7 @@ package-external ones as a list."
    :test 'equalp))
 
 (defun %get-class-methods.test1 ()
-  
+
   (defclass test-class ()
     ((slot1 :accessor slot1)
      (slot2 :reader rslot2
@@ -750,7 +754,7 @@ package-external ones as a list."
                           (first (rest ml))))
                   (rest gm))
         (push (symbol-name (first gm)) methods)))
-    
+
     (remove-duplicates
      (append (%filter-external-syms names (find-package pkg-name))
              methods)
@@ -767,7 +771,7 @@ package-external ones as a list."
               (unless more? (return))
               (push symbol result))))
     result))
- 
+
 (defun %get-package-symbols (package-name sys generic-functions)
   "Return two values:
               val1: a list of package-syms
@@ -787,7 +791,7 @@ package-external ones as a list."
         (push sym struct-syms))
       (when (typep (find-class sym nil) 'standard-class)
         (push (list (find-class sym) sym) class-syms)))
-    
+
     (dolist (st struct-syms)
       (nconc st
              (sort
@@ -805,7 +809,7 @@ package-external ones as a list."
      (sort sym-list #'string-lessp :key #'car)
      (remove-if-not #'third class-syms)
      struct-syms)))
-   
+
 (defun generate-system-symbols (sys-name prefix packages
                                          &optional (stream *standard-output*))
   "function maturity: 1
@@ -821,7 +825,7 @@ packages: list of packages to import from and to (\"package-from\" \"package-to\
           A system may define many packages, but the
           the user should manually choose a subset that the symbols will be imported
           from, and pass them here.
-          
+
 e.g. given call: (generate-system-symbols \"lil\" \"LIB.CONT\"
                                           \"(\"LIL/PURE/HASH-TABLE\"
                                             \"LIL/INTERFACE/ORDER\")
@@ -952,7 +956,7 @@ print-results: if t (default), print the results instead of returning a list.
                      (%match-with-symbol phrase-regexes
                                          (convert <symbol-and-desc> <lib-symbol> sym-list)))
                    package-tree print-results)))
-         
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; some dev helpers:
@@ -980,7 +984,7 @@ print-results: if t (default), print the results instead of returning a list.
   (with-open-file (s file :direction :output
                      :if-exists :supersede)
     (print-libs s)))
- 
+
 (defun print-lib (lib &optional (output *standard-output*))
   (format output "(\"~a\" \"~a\"~%(" (first lib) (second lib))
   (dolist (sym (third lib))
@@ -992,7 +996,7 @@ print-results: if t (default), print the results instead of returning a list.
                 "CL"
               (second sym))))
   (format output "))~%"))
- 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; package-tree generation examples for some systems
@@ -1049,7 +1053,7 @@ print-results: if t (default), print the results instead of returning a list.
   (packages-aux (%create-hierarchy.test)))
 
 
-  
+
 #|
 (defmacro defun-in-pkg (name args (&key package) &body body)
   "Define a function in a package.
