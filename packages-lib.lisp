@@ -12,8 +12,7 @@
    "DELETE-SYSTEM-AUX"
    "GET-PACKAGE-NAMES-AUX"
    "PACKAGES-AUX"
-   "*LIB-PACKAGE-TREE*"
-   "*PACKAGE-LISTS*"))
+   "*LIB-PACKAGE-TREE*"))
 
 (in-package "LIB")
 

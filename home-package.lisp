@@ -1,7 +1,7 @@
 
 (defpackage "LIB~"
   (:use :cl)
-  (:export "*PACKAGE-LISTS*"
+  (:export "*HIERARCHIES*"
            "ADD-TO-PACKAGE-LISTS"
            "GET-PACKAGE-NAMES-AUX"
            "SETUP-PACKAGES"
@@ -18,11 +18,11 @@
 
 (in-package "LIB~")
 
-(defparameter *package-lists* nil "list of lib-hierarchies")
+(defparameter *hierarchies* nil "list of lib-hierarchies")
 
-(defun add-to-package-lists (hierarchy-symbol)
-  "Add the hierarchy symbol to the *package-lists*"
-  (pushnew hierarchy-symbol *package-lists*))
+(defun add-to-package-lists (hierarchy)
+  "Add the hierarchy to the *hierarchies*"
+  (pushnew hierarchy *hierarchies*))
 
 (defvar *system-table* (make-hash-table :test 'equalp)
   "A hash table of {key:string val:system},

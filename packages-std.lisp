@@ -13,8 +13,7 @@
    "DELETE-SYSTEM-AUX"
    "GET-PACKAGE-NAMES-AUX"
    "PACKAGES-AUX"
-   "*STD-PACKAGE-TREE*"
-   "*PACKAGE-LISTS*"))
+   "*STD-PACKAGE-TREE*"))
 
 (in-package "STD")
 

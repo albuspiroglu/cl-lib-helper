@@ -42,28 +42,22 @@
 (defun prepare-std-libs ()
   (let* ((plib (find-package "LIB~"))
          (setup-packages (symbol-function (find-symbol "SETUP-PACKAGES" plib)))
-         (std-package-tree-symbol (find-symbol "*STD-PACKAGE-TREE*" plib))
-         (std-package-tree (symbol-value std-package-tree-symbol))
+         (std-package-tree (symbol-value (find-symbol "*STD-PACKAGE-TREE*" plib)))
          (symbol-count (symbol-function (find-symbol "SYMBOL-COUNT" plib)))
-         (package-lists-symbol (find-symbol "*PACKAGE-LISTS*" plib))
-         (package-lists (symbol-value package-lists-symbol))
          (add-to-package-lists (symbol-function (find-symbol "ADD-TO-PACKAGE-LISTS" plib))))
     (funcall setup-packages std-package-tree)
-    (format t "====Loaded std:*, total ~a symbols.====~%"
+    (format t "~&====Loaded std:*, total ~a symbols.====~%"
             (funcall symbol-count std-package-tree))
-    (funcall add-to-package-lists std-package-tree-symbol)))
+    (funcall add-to-package-lists std-package-tree)))
 
 (defun prepare-libs ()
   (let* ((plib (find-package "LIB~"))
          (setup-packages (symbol-function (find-symbol "SETUP-PACKAGES" plib)))
-         (lib-package-tree-symbol (find-symbol "*LIB-PACKAGE-TREE*" plib))
-         (lib-package-tree (symbol-value lib-package-tree-symbol))
+         (lib-package-tree (symbol-value (find-symbol "*LIB-PACKAGE-TREE*" plib)))
          (symbol-count (symbol-function (find-symbol "SYMBOL-COUNT" plib)))
-         (package-lists-symbol (find-symbol "*PACKAGE-LISTS*" plib))
-         (package-lists (symbol-value package-lists-symbol))
          (add-to-package-lists (symbol-function (find-symbol "ADD-TO-PACKAGE-LISTS" plib))))
     (funcall setup-packages lib-package-tree)
-    (format t "=====Loaded lib:*, total ~a symbols.=====~%"
+    (format t "~&=====Loaded lib:*, total ~a symbols.=====~%"
             (funcall symbol-count lib-package-tree))
-    (funcall add-to-package-lists lib-package-tree-symbol)))
+    (funcall add-to-package-lists lib-package-tree)))
 

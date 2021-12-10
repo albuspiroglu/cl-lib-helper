@@ -515,8 +515,8 @@ more than one namespace (function, variable, class, etc.), combine the results."
 
 (defun delete-system-aux ()
   (let (pkgs-error)
-    (dolist (pd lib~:*package-lists*)
-      (dolist (p (branches (symbol-value pd)))
+    (dolist (pd lib~:*hierarchies*)
+      (dolist (p (branches pd))
         (handler-case
             (delete-package (path p))
           (error (c)
