@@ -23,7 +23,7 @@ In addition, this system gives you packages corresponding to classes and their r
 
 ## Description
 This is an organisation of popular functionalities in a central, easy-to-browse
-set of packages. This library by itself doesn't add any utility function to common-lisp, 
+set of packages. This library by itself doesn't add any utility function to common-lisp,
 instead it just reorganises the work of others in an easier to reach structure.
 
 The taxonomy selection is mainly based on groups from clhs sections, cl-cookbook and some other common programming languages' standard libraries.
@@ -47,12 +47,12 @@ Or type "(lib:" and see the list of items in that group in a dropdown.
 
 Libraries are arranged in a hierarchy. Child level packages are created as symbols starting with a dot in the parent level. This way, after choosing the completion for a child level, one can change the dot to a colon to check the lower level's symbols, and keep going down the hierarchy until they reach a target. The way it works is:
 
-Assume some symbols at a level is at: 
+Assume some symbols at a level is at:
 
     lib.lvl1.lvl2:<symbols>
 
 Then a dropdown at lib.lvl1: would give:
-    
+
     lib.lvl1:
              .lvl2
              *any other symbol in lvl1*
@@ -71,7 +71,7 @@ With 2021-08-12 commit, we now have this interesting feature. If a package has a
 e.g.
 
     (lib.cont.lil.interface:
-    
+
 tab completion above will list lots of classes defined in interface package, all starting with .., so:
 
     (lib.cont.lil.interface:..
@@ -114,25 +114,27 @@ description and package path, find the closest matches within the lib hierarchy.
 
 phrase can be either one string with multiple words, or a list of expressions (cl-ppcre re expressions).
 
-Match will be listed for: 
-    
+Match will be listed for:
+
     (first phrase) contained in symbol name AND
     (every (rest phrase)) contained in path or symbol description.
-    
+
 e.g.
 
     (lib:find-syms "interface lil")
-    
+
 will list more results then:
 
     (lib:find-syms "interface lil pure")
-    
+
 The way we extract the description of any symbol is:
 "symbol-path-in-hierarchy : any description in any symbol namespace"
 
 This means lib-helper will search for function description, variable description, class or struct or macro description all the same, and concat them to the description. This gives us a powerful way to do search (or I call it a better apropos). For example to find any symbol with the word "structure" in its descriptions:
 
     (lib:find-syms '(".*" "structure"))
+    or
+    (lib:find-syms ".* structure")
 
 
 #### (lib:packages), (std:packages)
@@ -143,11 +145,11 @@ Get the list of package names under lib. or std.
 
 #### (lib:delete-this-system), (std:delete-this-system)
 Deletes all the LIB.* and STD.* packages and does an asdf:clear-system :lib-helper.
-If you change lib/std-defs.lisp and want to update your current lisp image, just do a:
+If you change lib-defs.lisp or std-defs.lisp and want to update your current lisp image, just do a:
 
     (lib:delete-this-system)
     (asdf:load-system :lib-helper)
-    
+
 ## Implementations tested
 Working for: sbcl2.1, clisp 2.49, lispworks 7.1
 
@@ -160,59 +162,33 @@ The complete hierarchy is contained in a tree in either lib-defs.lisp (std + 3rd
 - Add(ing) well known asdf libraries to the lib.* categories (~~asdf-uiop~~, ~~alexandria~~, ~~ppcre~~, ~~iterate~~, containers, ~~closer-mop~~, bordeaux-threads, ~~lil~~, lparallel, osicat, cl-opengl, etc.).
 - [ ] Add cl-containers. Since I already created some container branches, I should merge cl-containers into them. But then to reduce confusion, I can add ".clc" to the end of each category to separate the cl-containers bits. This way someone looking for hash-tables can use lib.cont.hash:, or lib.cont.hash.clc: .
 
-- [ ] 
+- [ ]
 	#### [2021-08-01]
-	While working on cl-containers, I started realising a problem in design. This library is trying to categorise libraries into hierarchical packages, sometimes using library author's package structure, sometimes using domain-categorised sections. Both ideas would be expected to converge but the difficulty of different authors standardising such a category is an unsolved problem. I think I'll come up with some guidelines. 
-	
+	While working on cl-containers, I started realising a problem in design. This library is trying to categorise libraries into hierarchical packages, sometimes using library author's package structure, sometimes using domain-categorised sections. Both ideas would be expected to converge but the difficulty of different authors standardising such a category is an unsolved problem. I think I'll come up with some guidelines.
+
 	Here, the list of criteria while managing the hierarchy is roughly:
-	
+
 	1. Keep the tree balanced, with number of subbranches around 3-5
 	2. Keep the number of symbols low, possibly < 30? Or instead minimise number of non-coherent symbols, where coherent symbols are syntactically similar (such as car, caar, cdr, cadr; or select-item, select-node, select-somethingelse).
-	3. Generic methods can be cloned to different branches where each branch represents a class that implements those methods. This is helpful to organise object oriented design. We will end up having packages that correspond to classes with methods and members.
-	4. ** make this automatic - working on (generate-system-symbols) now.
-	
+	3. DONE: ~~Generic methods can be cloned to different branches where each branch represents a class that implements those methods. This is helpful to organise object oriented design. We will end up having packages that correspond to classes with methods and members.~~
+	4. Mostly DONE: I can get symbols of a system with some hierarchy that contains class and struct separation and their methods: ** make this automatic - working on (generate-system-symbols) now.
+
 - [ ] import module as / using namespace new_name !!!
 	I just realised that I can add these functions (I feel like there are already good alternatives, starting with uiop/defpackage import-reexport facility) to easily use a library branch within a package. But the improvement here is, we'll import-reexport a whole tree of packages to a new base branch. So we can do this:
-	
+
     (in-package my-dev-package)
     (import-package-as "LIB.CONT.SEQ.ACCESS" "SEQ")
     (seq:extremum '(1 2 3 4) #'<)
-    
+
     (import-package "LIB.CONT.LIL.PURE") ; to import immediate syms and packages
     (queue:\<fifo-queue> ...)
     (collection:conj ...)
-	
+
 
 ## Improvement ideas
 If you have ideas, I'll be more than
 happy to collaborate as time allows. One thing worth pursuing might be
-hierarchical packages (as is seen in some implementations), or using dot separation
-in some hierarchical package names.
-
-notes from my code:
-
-	#|
-	some notes on getting the diff of the :cl symbols to the symbols in buffer file:
-	
-	(with-open-file (out "../../mylib/cl-user-syms2.lisp" :direction :output)
-	  (do-symbols (s) 
-	    (unless (search (symbol-name s) f1str :test #'equalp) 
-	    (format out "\"~a\"~%" s))))
-	
-	(with-open-file (out "../../mylib/syms-diff.lisp" :direction :output
-	:if-exists :supersede)
-	  (do-symbols (s) 
-	    (unless (search (concatenate 'string "\"" (symbol-name s) "\"")
-	                    f1str :test #'equalp) 
-        (format out "\"~a\"~%" s))))
-	
-	(defparameter f1ls (with-open-file (in "../../mylib/cl-user-syms.lisp")
-	(loop for line = (read-line in nil nil) while line
-          collecting line)))
-	(defparameter f1str (reduce (lambda (a b) (concatenate 'string a b)) f1ls))
-	
-	|#
-
+hierarchical packages (as is seen in some implementations).
 
 ## History
 ### [2021-08-12]
@@ -225,7 +201,7 @@ For some packages, I had included only the symbols of a package if they originat
 Added find-symbols and apropos-lib. This is becoming quite useful!
 
 ### [2021-08-01]
-Add cl-containers. This library proves to be quite difficult to categorise, although it is organised quite well itself. 
+Add cl-containers. This library proves to be quite difficult to categorise, although it is organised quite well itself.
 
 
 ### [2021-06-27]
