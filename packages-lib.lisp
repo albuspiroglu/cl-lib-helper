@@ -3,13 +3,14 @@
   (:use :cl)
   (:export 
    "DELETE-THIS-SYSTEM"
+   "DELETE-THIS-HIERARCHY"
    "GET-PACKAGE-NAMES"
    "PACKAGES"
    "SYMBOL-COUNT"
    "APROPOS-LIB"
    "FIND-SYMS")
   (:import-from "LIB~"
-   "DELETE-SYSTEM-AUX"
+   "DELETE-SYSTEM-AUX" "DELETE-HIERARCHY"
    "GET-PACKAGE-NAMES-AUX"
    "PACKAGES-AUX"
    "*LIB-PACKAGE-TREE*"))
@@ -17,7 +18,11 @@
 (in-package "LIB")
 
 (defun delete-this-system ()
+  "Delete all packages defined by system lib-helper, and remove it from asdf buffer."
   (delete-system-aux))
+
+(defun delete-this-hierarchy ()
+  (delete-hierarchy *lib-package-tree*))
 
 (defun get-package-names ()
   (get-package-names-aux *lib-package-tree*))

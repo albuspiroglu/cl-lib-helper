@@ -1,303 +1,6 @@
 
 (in-package "LIB~")
 
-(defclass lib-hierarchy ()
-  ((branches :initarg :branches
-             :accessor branches
-             :type list))
-
-  (:documentation "A library hierarchy (a.k.a. package-tree) is defined with this type.
-                   It is essentially a list."))
-
-;; sbcl barfs at this: (defvar <lib-hierarchy> (c2mop:class-prototype 'lib-hierarchy))
-;; that's why I'm creating a direct instance of the lib-hierarchy below
-(defvar <lib-hierarchy>
-  (make-instance 'lib-hierarchy)
-  "An empty object to be passed to generic functions as an interface.
-Idea partially from lil library.")
-
-(defvar <list> nil
-  "An empty object to be passed to generic functions as an interface.")
-
-(defclass lib-hierarchy-branch ()
-  ((path :initarg :path
-         :accessor path
-         :type string
-         :documentation "Path name for the branch. This corresponds to a package, or
-                         rather a package is created that corresponds to every branch.")
-
-   (parent :initarg :parent
-           :accessor parent
-           :type lib-hierarchy
-           :documentation "A link to the package-tree of this branch (this will be
-                           either std-tree or lib-tree).")
-
-   (path-desc :initarg :path-desc
-              :accessor path-desc
-              :type string
-              :documentation "Description of the path or package.")
-
-   (lib-symbols :initarg :lib-symbols
-                :accessor lib-symbols
-                :type list-of-lib-symbols))
-
-  (:documentation "A branch of a lib-hierarchy / package tree.
-A branch is e.g.:
-(\"LIB.CONT.LIST.CREATE\" \"List creation\"
-     ((\"CIRCULAR-LIST\" (\"alexandria\" \"ALEXANDRIA\")) ; symbols list start here
-      (\"CONS\" (NIL \"CL\"))
-      (\"COPY-LIST\" (NIL \"CL\"))
-      ...
-      "))
-
-
-(defvar <lib-hierarchy-branch> (make-instance 'lib-hierarchy-branch)
-  "An empty object to be passed to generic functions as an interface.")
-
-(defclass lib-symbol ()
-  ((sym-name :initarg :sym-name
-             :accessor sym-name
-             :type string
-             :documentation "The symbol")
-
-   (sys-pkgs :initarg :sys-pkgs
-             :accessor sys-pkgs
-             :type list
-             :documentation "Systems and packages for this symbol. Each item of
-                             the list contains two items, first one name of the system,
-                             second one package name.")
-
-   (parent :initarg :parent
-           :accessor parent
-           :type lib-hierarchy-branch)
-
-   (full-desc :initarg :full-desc
-              :accessor full-desc
-              :type string
-              :documentation "Hierarchy path + all namespace descriptions of the
-                              symbol combined.")
-
-   (syms :accessor syms
-         :type list-of-symbols
-         :documentation "The actual symbols, corresponding to sym-name, one for each sys-pkgs.
-                         First one is named the same as sym-name, subsequent ones appended
-                         an increasing number, from 1. If lazy-interned, then ~ or {.N}~, n
-                         being the same number."))
-
-  (:documentation "When there are multiple sys-pkg, multiple symbols will be created in the branch,
-      first one with the symbol's name, subsequent ones having a {.N}~, N in (1,2..).
-      Also there's a lazy interning process. If a system is not loaded, then its symbols
-      will not be imported, but rather a symbol of the same name + ~ appended, and tied
-      to a closure that'll load the system then import all symbols from the system to
-      their branches."))
-
-(defvar <lib-symbol> (make-instance 'lib-symbol)
-  "An empty object to be passed to generic functions as an interface.")
-
-(defun lib-symbolp (obj) (typep obj 'lib-symbol))
-
-(defun all-elements-are-lib-symbols (lst) (every #'lib-symbolp lst))
-
-(deftype list-of-lib-symbols ()
-  `(and (satisfies listp)
-        (satisfies lib-symbolp)))
-
-(defun all-elements-are-symbols (lst) (every #'symbolp lst))
-
-(deftype list-of-symbols ()
-  `(and (satisties listp)
-        (satisfies all-elements-are-symbols)))
-
-(defclass symbol-and-desc ()
-  ((sym :initarg :sym
-        :reader sym
-        :type symbol
-        :documentation "The symbol")
-
-   (hierarchy-name :initarg :hierarchy-name
-                   :reader hierarchy-name
-                   :type string
-                   :documentation "The lib-tree hierarchy path.")
-
-   (full-desc :initarg :full-desc
-              :accessor full-desc
-              :type string
-              :documentation "Hierarchy path + all namespace descriptions of the
-                              symbol combined."))
-
-  (:documentation "A type that contains the symbol, the hierarchy in tree and full description
-                   of the symbol. Used by find-sym and match functions."))
-
-(defvar <symbol-and-desc> (make-instance 'symbol-and-desc)
-  "An empty object to be passed to generic functions as an interface.")
-
-(defclass method-detail ()
-  ((method-obj :initarg :method-obj
-               :accessor method-obj
-               :type method
-               :documentation "The method object.")
-
-   (specializers :initarg :specializers
-                :accessor specializers
-                :type list
-                :documentation "Method lambda list."))
-
-  (:documentation "Details of a method."))
-
-(defvar <method-detail> (make-instance 'method-detail)
-  "An empty object to be passed to generic functions as an interface.")
-
-(defmethod print-object ((obj method-detail) stream)
-  (print-unreadable-object (obj stream :type nil :identity t)
-    (format stream "MD: ~a" (c2mop:generic-function-name
-                             (c2mop:method-generic-function (method-obj obj))))))
-
-(defun method-detailp (obj) (typep obj 'method-detail))
-
-(defun all-elements-are-method-details (lst) (every #'method-detailp lst))
-
-(deftype list-of-method-details ()
-  `(and (satisfies listp)
-        (satisfies all-elements-are-method-details)))
-
-(defclass gf-tree ()
-  ((gf :initarg :gf
-       :accessor gf
-       :documentation "The generic function object")
-
-   (gmethods :initarg :gmethods
-             :accessor gmethods
-             :type list-of-method-details
-             :documentation "Methods and lambda lists of the gm."))
-
-  (:documentation "A tree for a generic function including its methods and their
-                   lambda lists."))
-
-(defvar <gf-tree> (make-instance 'gf-tree)
-  "An empty object to be passed to generic functions as an interface.")
-
-(defvar <symbol> (make-symbol "<SYMBOL>")
-  "An empty object to be passed to generic functions as an interface.")
-
-(defmethod print-object ((obj gf-tree) stream)
-  (print-unreadable-object (obj stream :type nil :identity t)
-    (format stream "GT: ~a" (c2mop:generic-function-name (gf obj)))))
-
-(defgeneric convert (destination origin obj &key &allow-other-keys)
-  (:documentation "Convert obj from type origin to type destination.")
-
-  (:method ((destination symbol-and-desc) (origin lib-symbol) obj &key &allow-other-keys)
-   (let ((path-name (path (parent obj))))
-     (make-instance
-      'symbol-and-desc
-      :sym (intern (sym-name obj) (find-package path-name))
-      :hierarchy-name path-name
-      :full-desc (full-desc obj))))
-
-  (:method ((destination lib-hierarchy) (origin list) obj &key &allow-other-keys)
-   (let ((this (make-instance 'lib-hierarchy))
-         res)
-     (setf (slot-value this 'branches)
-           (dolist (b obj res)
-             (push (convert <lib-hierarchy-branch> <list> b :parent this) res)))
-     this))
-
-  (:method ((destination lib-hierarchy-branch) (origin list) obj &key parent &allow-other-keys)
-   (let ((this (make-instance 'lib-hierarchy-branch
-                              :path (first obj)
-                              :parent parent
-                              :path-desc (second obj)))
-         res)
-     (setf (slot-value this 'lib-symbols)
-           (dolist (s (third obj) res)
-             (push (convert <lib-symbol> <list> s :parent this) res)))
-     this))
-
-  (:method ((destination lib-symbol) (origin list) obj &key parent &allow-other-keys)
-   (make-instance
-    'lib-symbol
-    :sym-name (first obj)
-    :sys-pkgs (rest obj)
-    :parent parent))
-
-  (:method ((destination gf-tree) (origin symbol) g &key &allow-other-keys)
-   (let ((sg (symbol-function g)))
-     (make-instance
-      'gf-tree
-      :gf sg
-      :gmethods (mapcar
-                 (lambda (gm)
-                   (make-instance
-                    'method-detail
-                    :method-obj gm
-                    :specializers (c2mop:method-specializers gm)))
-                 (c2mop:generic-function-methods sg))))))
-
-(defun get-package-names-aux (package-tree)
-  "Return a list of package names in the package-tree."
-  (let (names)
-    (dolist (p (branches package-tree) names)
-      (push (path p) names))))
-
-(defun %create-packages (package-tree)
-  "Create each package, without any detail such as import, use etc."
-  (dolist (branch (branches package-tree))
-    (setf (documentation (make-package (path branch) :use '("COMMON-LISP")) t)
-          (path-desc branch))))
-
-(defmacro %with-system ((sys-var sys-name) &body body)
-  (let ((name (gensym)))
-    `(let* ((,name ,sys-name)
-            (,sys-var (gethash ,name *system-table*)))
-       (if ,sys-var
-           (progn
-             ,@body)
-         (error "System name ~a not found in *system-table*, consider adding
-it in known-libs.lisp?~%"
-                ,name)))))
-
-(defun %set-loaded (sys-name)
-  (%with-system (system sys-name)
-    (setf (system-loaded system) t)))
-
-(defun %loaded? (sys-name)
-  (if sys-name
-      (%with-system (system sys-name)
-        (system-loaded system))
-    t))
-
-(defun %should-load-at-startup (sys-name)
-  "Return t if sys-name should be loaded. This depends on load-at-startup and (already)
-loaded values."
-  (if sys-name
-      (%with-system (system sys-name)
-        (and (system-import-symbols-at-startup system)
-             (not (system-loaded system))))
-    ;; nil sys-name means cl std pkg, no loading
-    nil))
-
-(defun %asdf-system-loaded (sys-name)
-  (asdf:registered-system sys-name))
-
-(defun %maybe-load-at-startup (system)
-  "asdf load the system if necessary.
-system: '(sys-name from-package-name)"
-  (if (%should-load-at-startup (first system))
-      (progn
-        ;; asdf isn't happy about loading other systems during a load operation
-        ;; and since we're currently loading lib-helper, don't asdf:load
-        ;; the system and just tell the user what to do & give up.
-        (unless (or (%asdf-system-loaded (first system))
-                    (find-package (second system)))
-          (error "=========A symbol is exported from system ~a, but it is currently
-not loaded. Either load the system before lib-helper, or remove its flag to
-import-symbols-at-startup in known-libs.lisp. (second system: ~A)~%"
-                 (first system)
-                 (second system)))
-        (%set-loaded (first system))
-        t)
-    nil))
-
 (defun %append-not-loaded-suffix (sym-name)
   (concatenate 'string sym-name "~"))
 
@@ -331,27 +34,21 @@ e.g. from a list of: (\"CAR\" (NIL \"CL\") (\"my-system\" \"MY-PACKAGE\"))
       (setf (symbol-value new-sym) sym)
       new-sym)))
 
-(defun %maybe-load (sys-name)
-  "asdf load the system if necessary."
-  (if (%loaded? sys-name)
-      nil
-    (progn
-      (asdf:load-system sys-name)
-      (%set-loaded sys-name)
-      t)))
-
-(defun %rename-import-syms (sys branch from-pkg)
-  "For the symbols in branch that belong to sys,
+(defun %rename-import-syms (orig-pkg branch from-pkg)
+  "For the symbols in branch that belong to orig-pkg,
 unintern the symbols corresponding to that package, which will be named
 as a-symbol{.N}~, and shadowing-import every the a-symbol name from from-pkg
 to to-pkg in branch.
 
-sys: (list sys-name package-name)
+orig-pkg: is of type origin-package
+branch: a lib-hierarchy-branch
+from-pkg: a common-lisp package designator
 "
   (flet ((belongs-to-sys (lib-sym)
-           (search (list (first sys))
-                   (sys-pkgs lib-sym)
+           (search (list (containing-system orig-pkg))
+                   (origin-packages lib-sym)
                    :test (lambda (a b) (equalp a (first b))))))
+
     (let ((to-pkg (find-package (path branch))))
       (dolist (lib-sym (lib-symbols branch))
         (let ((i (belongs-to-sys lib-sym)))
@@ -363,18 +60,7 @@ sys: (list sys-name package-name)
                         to-pkg)
               (export sym to-pkg))))))))
 
-(defun %activate-system (sys pkg-tree)
-  "asdf:load the system and for every symbol of it
-import-export them in the tree."
-  (if (%maybe-load (first sys))
-      (let ((from-pkg (find-package (second sys))))
-        (dolist (branch (branches pkg-tree))
-          (%rename-import-syms sys branch from-pkg))
-        (format t "All symbols of system ~a imported.~%" (first sys)))
-    (format t "System ~a already activated. Nothing to do.~%"
-            (first sys))))
-
-(defun %intern-later (sym-name sys to-pkg pkg-tree)
+(defun %intern-later (sym-name orig-pkg to-pkg pkg-tree)
   "Create a symbol with a ~ appended to end, bound to a function to do:
 load the associated system (via asdf - not quicklisp, so everything is offline),
 create the expected symbol without the ~ this time, pointing to the actual object of concern and
@@ -383,44 +69,8 @@ delete the symbol with the ~ at the end.
   (let* ((new-sym-name (concatenate 'string sym-name "~"))
          (new-sym (intern new-sym-name to-pkg)))
     (setf (symbol-function new-sym)
-          (lambda () (%activate-system sys pkg-tree)))
+          (lambda () (activate-system orig-pkg pkg-tree)))
     new-sym))
-
-(defun %lazy-intern (lib-sym sym-cnt to-pkg)
-  "sys: (sys-name package-name)
-
-See Lazy interning in the
-top comment of *lib-package-tree* for details.
-
-Intern a symbol, and return that symbol name (package relative).
-"
-  (let* ((new-sym-name (%get-target-sym-name (sym-name lib-sym) sym-cnt :loaded t))
-         (sys (nth sym-cnt (sys-pkgs lib-sym)))
-         (from-package (find-package (second sys))))
-    (unless from-package
-      (error "lazy-intern: package ~a not found.~%" (second sys)))
-    (if (%loaded? (first sys))
-        (%intern-now new-sym-name
-                     (find-symbol (sym-name lib-sym) from-package)
-                     to-pkg)
-      (%intern-later new-sym-name sys to-pkg (parent (parent lib-sym))))))
-
-(defun %import-and-get-symbols (lib-sym to-pkg)
-  "For one target symbol, return a list of symbols which are either from a
-system-package, or a list of sym-nameN{~}* where ~ is optional. See
-Lazy interning in the top comment of *lib-package-tree* for details.
-
-  lib-sym: lib-symbol
-  sym-name: string
-  systems: list of (sys-name package-name)
-"
-  (let (syms
-        (last-added-sym 0))
-    (dolist (sys (sys-pkgs lib-sym) syms)
-      (%maybe-load-at-startup sys)
-      (push (%lazy-intern lib-sym last-added-sym to-pkg)
-            syms)
-      (incf last-added-sym))))
 
 (defun %get-parent-name (pkg-name)
   "Given lib.lvl1.lvl2 shaped package name, return lib.lvl1; or
@@ -493,39 +143,96 @@ more than one namespace (function, variable, class, etc.), combine the results."
         (concatenate 'string (path (parent s))
                      (%get-sym-desc (first (syms s))))))
 
-(defun %define-sub-package-syms (p)
-  "p: lib-hierarchy-branch"
-  (let (syms
-        (to-pkg (find-package (path p))))
-    (dolist (s (lib-symbols p))
-      (setf (syms s) (%import-and-get-symbols s to-pkg))
-      (setf syms (append syms (syms s)))
-      (%set-full-desc s))
-    (export syms to-pkg)
-    (%add-sub-packages p to-pkg)))
-
-(defun %define-subpackages (package-tree)
-  (dolist (branch (branches package-tree))
-    (%define-sub-package-syms branch)))
-
 (defun setup-packages (package-tree)
   "Creates and defines packages in package-tree."
-  (%create-packages package-tree)
-  (%define-subpackages package-tree))
+  (flet ((%create-packages (package-tree)
+           "Create each package, without any detail such as import, use etc."
+           (let (failed-packages)
+             (dolist (branch (branches package-tree))
+               (handler-case
+                   (let ((pkg (make-package (path branch) :use '("COMMON-LISP"))))
+                     (setf (documentation pkg t)
+                           (path-desc branch)))
+                 (error (c)
+                   (declare (ignore c))
+                   (push (path branch) failed-packages)))
+               (when (> (length failed-packages) 1)
+                 (format t "Failed to create packages: ~{~a, ~}.~%" failed-packages)))))
+
+         (%link-subpackages (package-tree)
+           "For each package, create symbols of \".sub-package-name\" that refers
+            to the sub package object."
+           (flet ((%define-sub-package-syms (p)
+                    "p: lib-hierarchy-branch"
+                    (flet ((%import-and-get-symbols (lib-sym to-pkg)
+                             "For one target symbol, return a list of symbols which are either from a
+            system-package, or a list of sym-nameN{~}* where ~ is optional. See
+            Lazy interning in the top comment of *lib-package-tree* for details.
+
+            lib-sym: lib-symbol
+            sym-name: string
+            systems: list of (sys-name package-name)
+            "
+                             (flet ((%lazy-intern (lib-sym sym-cnt to-pkg)
+                                      "sys: (sys-name package-name)
+
+See Lazy interning in the
+top comment of *lib-package-tree* for details.
+
+Intern a symbol, and return that symbol name (package relative).
+"
+                                      (let* ((new-sym-name (%get-target-sym-name (sym-name lib-sym) sym-cnt :loaded t))
+                                             (orig-pkg (nth sym-cnt (origin-packages lib-sym)))
+                                             (from-package (find-package (pkg-name orig-pkg))))
+                                        (unless from-package
+                                          (error "lazy-intern: package ~a not found.~%" (pkg-name orig-pkg)))
+                                        (if (system-loaded (containing-system orig-pkg))
+                                            (%intern-now new-sym-name
+                                                         (find-symbol (sym-name lib-sym) from-package)
+                                                         to-pkg)
+                                          (%intern-later new-sym-name orig-pkg to-pkg (parent (parent lib-sym)))))))
+
+                               (let (syms
+                                     (last-added-sym 0))
+                                 (dolist (orig-pkg (origin-packages lib-sym) syms)
+                                   (maybe-load-system-at-startup orig-pkg)
+                                   (push (%lazy-intern lib-sym last-added-sym to-pkg)
+                                         syms)
+                                   (incf last-added-sym))))))
+
+                      (let (syms
+                            (to-pkg (find-package (path p))))
+                        (dolist (s (lib-symbols p))
+                          (setf (syms s) (%import-and-get-symbols s to-pkg))
+                          (setf syms (append syms (syms s)))
+                          (%set-full-desc s))
+                        (export syms to-pkg)
+                        (%add-sub-packages p to-pkg)))))
+
+             (dolist (branch (branches package-tree))
+               (%define-sub-package-syms branch)))))
+
+    (%create-packages package-tree)
+    (%link-subpackages package-tree)))
 
 (defun delete-system-aux ()
-  (let (pkgs-error)
-    (dolist (pd lib~:*hierarchies*)
-      (dolist (p (branches pd))
-        (handler-case
-            (delete-package (path p))
-          (error (c)
-            (declare (ignore c))
-            (push (path p) pkgs-error)))))
-    (when pkgs-error
-      (format t "Error deleting packages ~{~a, ~}.~%" pkgs-error)))
+  (dolist (pd lib~:*hierarchies*)
+    (delete-hierarchy pd))
   (delete-package "LIB~")
   (asdf:clear-system :lib-helper))
+
+(defun delete-hierarchy (hierarchy)
+  (let (pkgs-error)
+    (dolist (p (branches hierarchy))
+      (handler-case
+          (delete-package (path p))
+        (error (c)
+          (declare (ignore c))
+          (push (path p) pkgs-error))))
+    (when pkgs-error
+      (format t "For lib hierarchy ~A:~%  Error deleting packages ~{~a, ~}.~%" 
+              hierarchy 
+              pkgs-error))))
 
 (defun %get-target-sym-name.test1 ()
   (assert (equalp "CAR.1~" (%get-target-sym-name "CAR" 1 :loaded nil)))
@@ -603,9 +310,9 @@ list of gf-tree.
     (do-all-symbols (sym (mapcar (lambda (g) (convert <gf-tree> <symbol> g))
                                  (remove-duplicates result)))
 ;                                  (%remove-setf-functions result))))
-      (if (and (fboundp sym)
-               (typep (symbol-function sym) 'generic-function))
-          (push sym result)))))
+      (when (and (fboundp sym)
+                 (typep (symbol-function sym) 'generic-function))
+        (push sym result)))))
 
 (defun %format-package-tree-branch-syms (tree stream)
   (format stream "(\"~a\" \"~a\"~%(" (first tree) (second tree))

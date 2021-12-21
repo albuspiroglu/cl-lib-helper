@@ -2,6 +2,9 @@
 
 ;; This is a tree of std.* family packages.
 ;; 
+;; First item in the tree is skipped, and a package corresponding
+;; it is expected to exist. It is used to name the hierarchy object.
+;;
 ;; Each package is defined as:
 ;;   (Package-name Description Symbol-List)
 ;;   Package-name: string
@@ -22,7 +25,8 @@
 (defvar *std-package-tree*
   (convert
    <lib-hierarchy> <list>
-   '(
+   '(("STD" "Top level"
+      ())
      ("STD.FUN" "Functions"
       (("DEFUN" (NIL "CL"))
        ("VALUES" (NIL "CL"))
@@ -256,7 +260,6 @@
        ))
      ("STD.CONT.HASH.MODIFY" "Modify hash container"
       (("REMHASH" (NIL "CL"))
-       ("DEFINE-HASH-TABLE-TEST" (NIL "CL"))
        ("CLRHASH" (NIL "CL"))
        ("SXHASH" (NIL "CL"))
        ))
