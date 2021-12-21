@@ -29,6 +29,9 @@
     :components ((:file "system"
                   :description "Defines load behaviour for systems.")
 
+                 (:file "methods"
+                  :description "Find generic functions and their methods for organising classes.")
+
                  (:file "origin-package"
                   :depends-on ("system")
                   :description "The package where a symbol originated from")
@@ -42,15 +45,25 @@
 
                  (:file "converters"
                   :depends-on ("lib-hierarchy")
-                  :description "Converter methods definitions.")))
+                  :description "Converter methods definitions."))
+
+    :description "Classes, structs, deftypes and their methods.")
 
    (:file "known-libs" :depends-on ("package"))
 
-   (:file "package-helpers" :depends-on ("package"))
+   (:file "utils" :depends-on ("package"))
+
+   (:file "packages-common" 
+    :depends-on ("package" "utils")
+    :description "Shared functionality between packages-*.lisp")
+
+   (:file "system-helpers"
+    :depends-on ("package" "utils")
+    :description "Helper functions to generate hierarchies for systems")
 
    (:module std-lib
     :pathname ""
-    :depends-on (package-helpers)
+    :depends-on (packages-common)
     :components
     ((:file "std-defs")
      (:file "packages-std" :depends-on ("std-defs")))
@@ -59,7 +72,7 @@
 
    (:module libs
     :pathname ""
-    :depends-on (package-helpers)
+    :depends-on (packages-common)
     :components
     ((:file "lib-defs")
      (:file "packages-lib" :depends-on ("lib-defs")))

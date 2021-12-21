@@ -67,3 +67,32 @@
 (deftype list-of-symbols ()
   `(and (satisties listp)
         (satisfies all-elements-are-symbols)))
+
+(defun find-lib-aux (search-closure package-tree &optional (print-results t))
+  "Search in package-tree for symbols meeting search-closure predicate.
+     print-results: if t, print results, don't return, otherwise return a list of results.
+"
+  (let (result)
+    (dolist (branch (branches package-tree))
+      (dolist (lib-symbol (lib-symbols branch))
+        (when (funcall search-closure lib-symbol)
+          (push (concatenate 'string
+                             (path (parent lib-symbol))
+                             ":"
+                             (sym-name lib-symbol))
+                result))))
+    (if print-results
+        (format t "~{~a~%~}" result)
+      result)))
+
+(defun match-with-symbol (phrase-regexes lib-symbol)
+  "Return true if any expression in phrase-regexes matches the symbol name AND
+all the rest in phrase-regexes match the symbol's full-description (which
+includes hierarchy path along with all namespace descriptions)."
+  (let* ((sym-name (sym-name lib-symbol))
+         (desc (full-desc lib-symbol)))
+    (and
+     (cl-ppcre:scan (first phrase-regexes) sym-name)
+     (every (lambda (s) (cl-ppcre:scan s desc)) (rest phrase-regexes)))))
+
+

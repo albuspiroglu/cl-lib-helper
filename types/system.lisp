@@ -102,7 +102,7 @@ to the library branches for on-demand use."
   (if (maybe-load (containing-system orig-pkg))
       (let ((from-pkg (find-package (pkg-name orig-pkg))))
         (dolist (branch (branches pkg-tree))
-          (%rename-import-syms orig-pkg branch from-pkg))
+          (rename-import-syms orig-pkg branch from-pkg))
         (format t "All symbols of system ~a imported.~%" (containing-system orig-pkg)))
     (format t "System ~a already activated. Nothing to do.~%"
             (containing-system orig-pkg))))

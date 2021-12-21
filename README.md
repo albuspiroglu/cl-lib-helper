@@ -191,8 +191,13 @@ happy to collaborate as time allows. One thing worth pursuing might be
 hierarchical packages (as is seen in some implementations).
 
 ## History
+### [2021-12-21]
+Major code restructuring. Looking at the lib-helper.asd should make it possible to understand the complete project, or at least help with it. Classes improved & separated, with additional contextual separations.
+
+Also tests are added.
+
 ### [2021-08-12]
-Classses as packages.
+Classes as packages.
 
 ### [2021-08-09]
 For some packages, I had included only the symbols of a package if they originated from that package. Now the decision is to include all external symbols of a package instead. e.g. uiop:define-package's :use-reexport, or a package manually exporting its imported symbols.

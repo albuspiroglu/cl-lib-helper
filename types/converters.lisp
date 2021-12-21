@@ -2,15 +2,6 @@
 
 (in-package "LIB~")
 
-(defmethod convert ((destination symbol-and-desc) (origin lib-symbol) obj &key &allow-other-keys)
-  "Conversion: lib-symbol -> symbol-and-desc"
-  (let ((path-name (path (parent obj))))
-    (make-instance
-     'symbol-and-desc
-     :sym (intern (sym-name obj) (find-package path-name))
-     :hierarchy-name path-name
-     :full-desc (full-desc obj))))
-
 
 (defmethod convert ((destination lib-hierarchy) (origin list) obj &key &allow-other-keys)
   "Conversion: list -> lib-hierarchy"
