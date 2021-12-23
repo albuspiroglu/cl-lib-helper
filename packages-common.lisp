@@ -134,7 +134,7 @@ more than one namespace (function, variable, class, etc.), combine the results."
 
 (defun setup-packages (package-tree)
   "Creates and defines packages in package-tree."
-  (flet ((%create-packages (package-tree)
+  (flet ((%create-packages ()
            "Create each package, without any detail such as import, use etc."
            (let (failed-packages)
              (dolist (branch (branches package-tree))
@@ -148,7 +148,7 @@ more than one namespace (function, variable, class, etc.), combine the results."
                (when (> (length failed-packages) 1)
                  (format t "Failed to create packages: ~{~a, ~}.~%" failed-packages)))))
 
-         (%link-subpackages (package-tree)
+         (%link-subpackages ()
            "For each package, create symbols of \".sub-package-name\" that refers
             to the sub package object."
            (flet ((%define-sub-package-syms (p)
@@ -201,8 +201,8 @@ Intern a symbol, and return that symbol name (package relative).
              (dolist (branch (branches package-tree))
                (%define-sub-package-syms branch)))))
 
-    (%create-packages package-tree)
-    (%link-subpackages package-tree)))
+    (%create-packages)
+    (%link-subpackages)))
 
 
 (defun delete-system-aux ()

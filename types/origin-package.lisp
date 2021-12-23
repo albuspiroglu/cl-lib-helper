@@ -15,6 +15,7 @@ in the hierarchy so that we can point to the actual place."))
 
 
 (defun make-origin-package (system-and-package)
+  (declare (special *system-table*))
   (make-instance 'origin-package
                  :pkg-name (second system-and-package)
                  :system (gethash (first system-and-package) 

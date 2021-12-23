@@ -58,7 +58,7 @@
 
 
 (defmethod system-loaded ((obj (eql nil)))
-  nil)
+  t)
 
 
 (defmacro with-system ((sys-var sys-name) &body body)
@@ -121,7 +121,7 @@ orig-pkg: is of type origin-package"
 not loaded. Either load the system before lib-helper, or remove its flag to
 import-symbols-at-startup in known-libs.lisp.~%"
                  (containing-system orig-pkg)))
-        (setf (system-loaded (containing-system second))
+        (setf (system-loaded (containing-system orig-pkg))
               t)
         t)
     nil))

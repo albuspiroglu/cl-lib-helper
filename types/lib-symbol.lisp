@@ -42,7 +42,7 @@
   (format stream "#<~S ~A>"
           (type-of obj)
           (concatenate 'string
-                       (parent obj) "->" (sym-name obj)))
+                       (path (parent obj)) "-" (sym-name obj)))
   obj)
 
 (defvar <lib-symbol> (make-instance 'lib-symbol)
