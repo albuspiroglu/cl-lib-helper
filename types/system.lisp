@@ -27,6 +27,8 @@
           (system-name obj))
   obj)
 
+(defmethod system-name ((obj (eql nil)))
+  nil)
 
 (defgeneric make-system (sys &key &allow-other-keys)
   (:documentation "

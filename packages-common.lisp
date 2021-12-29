@@ -48,7 +48,7 @@ from-pkg: a common-lisp package designator
   (flet ((belongs-to-sys (lib-sym)
            (search (list (containing-system orig-pkg))
                    (origin-packages lib-sym)
-                   :test (lambda (a b) (equalp a (first b))))))
+                   :test (lambda (a b) (equalp a (containing-system b))))))
 
     (let ((to-pkg (find-package (path branch))))
       (dolist (lib-sym (lib-symbols branch))
@@ -62,7 +62,7 @@ from-pkg: a common-lisp package designator
               (export sym to-pkg))))))))
 
 (defun intern-later (sym-name orig-pkg to-pkg pkg-tree)
-  "Create a symbol with a ~ appended to end, bound to a function to do:
+  "Create a symbol with a ~ at the end, bound to a function to do:
 load the associated system (via asdf - not quicklisp, so everything is offline),
 create the expected symbol without the ~ this time, pointing to the actual object of concern and
 delete the symbol with the ~ at the end.

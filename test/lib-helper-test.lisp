@@ -1,7 +1,7 @@
 ;; lib-helper/test/lib-helper-test.lisp
 
 (defpackage "LIB-HELPER/TEST"
-  (:use #:cl #:fiveam))
+  (:use #:cl #:fiveam #:lib~))
 
 (in-package "LIB-HELPER/TEST")
 
@@ -72,16 +72,113 @@
 
 
 (test get-target-sym-name-test1 ()
-  (assert (equalp "CAR.1~" (lib~::get-target-sym-name "CAR" 1 :loaded nil)))
-  (assert (equalp "CAR~" (lib~::get-target-sym-name "CAR" 0)))
-  (assert (equalp "CAR" (lib~::get-target-sym-name "CAR" 0 :loaded t))))
+  (is (equalp "CAR.1~" (lib~::get-target-sym-name "CAR" 1 :loaded nil)))
+  (is (equalp "CAR~" (lib~::get-target-sym-name "CAR" 0)))
+  (is (equalp "CAR" (lib~::get-target-sym-name "CAR" 0 :loaded t))))
 
 
 (test get-parent-name-test1 ()
-  (assert (string-equal (lib~::get-parent-name "lib.lvl1.lvl2")
+  (is (string-equal (lib~::get-parent-name "lib.lvl1.lvl2")
                         "lib.lvl1"))
-  (assert (string-equal (lib~::get-parent-name "lib.lvl1..class1")
+  (is (string-equal (lib~::get-parent-name "lib.lvl1..class1")
                         "lib.lvl1"))
-  (assert (string-equal (lib~::get-parent-name "lib")
+  (is (string-equal (lib~::get-parent-name "lib")
                         "")))
+
+
+(test a-std-symbol-loaded ()
+      (multiple-value-bind (sym state)
+          (find-symbol "ASSOC" "STD.CONT.ALIST")
+        (is (eq sym 'cl:assoc))
+        (is (eq state :external))))
+
+(test tilde-symbol-not-created-for-selected-symbol ()
+      (multiple-value-bind (sym state)
+          (find-symbol "ASSOC~" "STD.CONT.ALIST")
+        (is (eq sym nil))))
+
+
+(defvar *test-sys-name* "lib-helper-test-system")
+(defvar *test-sys-package-name* "LIB-HELPER/TEST-SYSTEM-PACKAGE")
+(defvar *test-target-package-names* '("TEST" "TEST.TEST-SYSTEM"))
+(defun delete-target-packages ()
+  (dolist (p *test-target-package-names*)
+    (delete-package p)))
+
+(defun get-test-hierarchy ()
+  (lib~::convert
+   lib~::<lib-hierarchy> lib~::<list>
+   `(("TEST" "Top level"
+      ())
+     ("TEST.TEST-SYSTEM" "This is a test system for hierarchy tests"
+      (("SYM1" (,*test-sys-name* ,*test-sys-package-name*))
+       ("SYM2" (,*test-sys-name* ,*test-sys-package-name*)))))))
+
+(defun get-test-table (import-symbols-at-startup)
+  (let ((table (make-hash-table :test 'equalp)))
+    (setf (gethash *test-sys-name* table)
+          (lib~::make-system (list *test-sys-name* import-symbols-at-startup)))
+    table))
+
+(test tilde-call-auto-loads-the-system ()
+      (let (*system-table*)
+
+        (unwind-protect
+            (progn
+              (let ((*system-table* (get-test-table nil)))
+      
+                (asdf:load-system "lib-helper-test-system")
+                (setup-packages (get-test-hierarchy))
+
+                
+                (multiple-value-bind (sym state)
+                    (find-symbol "SYM1~" "TEST.TEST-SYSTEM")
+                  (is (and sym (eq state :external)) "There should be a tilde-appended symbol, because 
+we chose to make-system with import-symbols-at-startup nil"))
+
+                (multiple-value-bind (sym state)
+                    (find-symbol "SYM1" "TEST.TEST-SYSTEM")
+                  (is (eq sym nil) "and there shouldn't be a symbol corresponding to the actual source symbol"))
+
+                ;; after the assertion above, we can now load the test-system by calling
+                ;; the ~ symbol and see that the ~ symbol goes away and the non-tilda exists.
+                (multiple-value-bind (sym state)
+                    (find-symbol "SYM1~" "TEST.TEST-SYSTEM")
+                  (funcall sym))
+
+                (multiple-value-bind (sym state)
+                    (find-symbol "SYM1~" "TEST.TEST-SYSTEM")
+                  (is (eq sym nil) "The symbol with ~ should be deleted."))
+
+                (multiple-value-bind (sym state)
+                    (find-symbol "SYM1" "TEST.TEST-SYSTEM")
+                  (is (eq sym (find-symbol "SYM1" *test-sys-package-name*)))
+                  (is (eq state :external) "and the symbol without ~ should exist."))))
+
+          ;; cleanup for the test
+          (progn
+            (asdf:clear-system *test-sys-name*)
+            (delete-package *test-sys-package-name*)
+            (delete-target-packages)))))
+
+
+(test setup-packages-gives-error-for-not-loaded-system ()
+      (let (*system-table*
+            setup-packages-error)
+
+        (unwind-protect
+            (progn
+              (let ((*system-table* (get-test-table t)))
+      
+                (handler-case
+                    (setup-packages (get-test-hierarchy))
+                  (error (c)
+                    (setf setup-packages-error t)))
+
+                (is (eq t setup-packages-error))))
+
+          ;; cleanup for the test
+          (delete-target-packages))))
+
+
 

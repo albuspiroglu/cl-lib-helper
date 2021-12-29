@@ -28,7 +28,7 @@ in the hierarchy so that we can point to the actual place."))
   (format stream "#<~S ~A>"
           (type-of obj)
           (concatenate 'string
-                       (containing-system obj)
+                       (system-name (containing-system obj))
                        "-"
                        (pkg-name obj)))
   obj)
