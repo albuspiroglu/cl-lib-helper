@@ -175,7 +175,8 @@ we chose to make-system with import-symbols-at-startup nil"))
                   (error (c)
                     (setf setup-packages-error t)))
 
-                (is (eq t setup-packages-error))))
+                (is (eq t setup-packages-error) "Since the lib-helper-test-system is not loaded
+yet, setup-packages should throw an error")))
 
           ;; cleanup for the test
           (delete-target-packages))))

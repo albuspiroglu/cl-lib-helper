@@ -37,7 +37,7 @@
                   :description "The package where a symbol originated from")
 
                  (:file "lib-hierarchy"
-                  :description "Types pertaining the lib-hierarchy")
+                  :description "Types and functions pertaining the lib-hierarchy")
 
                  (:file "lib-symbol"
                   :description "A symbol that can exist in multiple source packages, mapped
@@ -49,13 +49,15 @@
 
     :description "Classes, structs, deftypes and their methods.")
 
-   (:file "known-libs" :depends-on ("package"))
+   (:file "known-libs" 
+    :depends-on ("package")
+    :description "A collection of know systems and their load-at-startup status.")
 
    (:file "utils" :depends-on ("package"))
 
    (:file "packages-common" 
     :depends-on ("package" "utils")
-    :description "Shared functionality between packages-*.lisp")
+    :description "Shared functionality between packages-*.lisp below")
 
    (:file "system-helpers"
     :depends-on ("package" "utils")

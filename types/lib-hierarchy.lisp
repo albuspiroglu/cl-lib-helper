@@ -69,8 +69,90 @@ A branch is e.g.:
 (defvar <lib-hierarchy-branch> (make-instance 'lib-hierarchy-branch)
   "An empty object to be passed to generic functions as an interface.")
 
-(defun get-package-names-aux (hierarchy)
-  "Return a list of package names in the package-tree."
-  (let (names)
-    (dolist (p (branches hierarchy) names)
-      (push (path p) names)))) 
+ 
+(defun get-parent-name (pkg-name)
+  "Given lib.lvl1.lvl2 shaped package name, return lib.lvl1; or
+lib.lvl1.lvl2..class1, return lib.lvl1.lvl2"
+  (let ((dot-pos
+         (let ((test-pos (search ".." pkg-name :from-end t)))
+           (if test-pos
+               test-pos
+             (search "." pkg-name :from-end t)))))
+    (if dot-pos
+        (subseq pkg-name 0 dot-pos)
+        "")))
+
+
+(defun get-sub-packages (pkg-name package-tree)
+  "pkg-name: string
+Returns a list of paths that are sub packages of pkg-name."
+  (let (subs)
+    (dolist (p (branches package-tree) subs)
+      (if (string-equal (get-parent-name (path p))
+                        pkg-name)
+          (push (path p) subs)))))
+
+
+(defun add-sub-packages (h-branch parent-pkg)
+  "Find package names that are sub-packages of h-branch, and make them
+symbols of .package-name, i.e. a dot prepended, and intern in the parent package.
+
+e.g.
+a package path1.path2 can have symbols interned for it such as:
+path1.path2:.path2.1
+path1.path2:.path2.2
+path1.path2:.path2.3
+"
+  (dolist (s (get-sub-packages (path h-branch) (parent h-branch)))
+    (let ((sym (intern (subseq s (length (path h-branch)))
+                       parent-pkg)))
+      (setf (symbol-value sym) (find-package s)) ;; prob. the best way to keep a reference to the package
+      (export sym parent-pkg))))
+
+
+(defun define-sub-package-syms (p)
+  "Define all symbols of the existing target branch package p,
+including the listed symbols & symbols for each .sub-package
+
+INPUTS:
+  p: lib-hierarchy-branch
+
+OUTPUTS: nil
+"
+
+  (let (syms
+        (to-pkg (find-package (path p))))
+
+    (dolist (s (lib-symbols p))
+      (setf (syms s) (import-and-get-symbols s to-pkg))
+      (setf syms (append syms (syms s)))
+      (set-full-desc s))
+    (export syms to-pkg)
+    (add-sub-packages p to-pkg)))
+
+
+(defun setup-packages (package-tree)
+  "Creates and defines packages in package-tree."
+  (flet ((%create-packages ()
+           "Create each package, without any detail such as import, use (except use :cl) etc."
+
+           (let (failed-packages)
+
+             (dolist (branch (branches package-tree))
+
+               (handler-case
+                   (let ((pkg (make-package (path branch) :use '("COMMON-LISP"))))
+                     (setf (documentation pkg t)
+                           (path-desc branch)))
+                 (error (c)
+                   (declare (ignore c))
+                   (push (path branch) failed-packages)))
+
+               (when (> (length failed-packages) 1) ;; We're manually creating the top-level package,
+                                                    ;; that's why skip one error.
+                 (format t "Failed to create packages: ~{~a, ~}.~%" failed-packages))))))
+
+    (%create-packages)
+
+    (dolist (branch (branches package-tree))
+      (define-sub-package-syms branch))))
