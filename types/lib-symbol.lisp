@@ -98,7 +98,7 @@ includes hierarchy path along with all namespace descriptions)."
      (every (lambda (s) (cl-ppcre:scan s desc)) (rest phrase-regexes)))))
 
 
-(defconstant +doc-sys+
+(defparameter +doc-sys+
   (list
    (list #'fboundp 'function)
    (list (lambda (v) (typep v 'method-combination)) 'method-combination)

@@ -148,8 +148,8 @@ OUTPUTS: nil
                    (declare (ignore c))
                    (push (path branch) failed-packages)))
 
-               (when (> (length failed-packages) 1) ;; We're manually creating the top-level package,
-                                                    ;; that's why skip one error.
+               ;; We're manually creating the top-level package, that's why skip one error.
+               (when (> (length failed-packages) 1)
                  (format t "Failed to create packages: ~{~a, ~}.~%" failed-packages))))))
 
     (%create-packages)

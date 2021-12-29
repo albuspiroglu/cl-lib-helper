@@ -98,7 +98,7 @@
                "fiveam")
   :components ((:module "test"
                 :components ((:file "lib-helper-test"))))
-  :perform (test-op (c c) (uiop/package:symbol-call :5am :run! :lib-helper)))
+  :perform (test-op (o c) (uiop/package:symbol-call :5am :run! :lib-helper)))
 
 
 (defun prepare-std-libs ()
