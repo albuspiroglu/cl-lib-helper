@@ -66,7 +66,7 @@
     (is (member (function wslot2) mlist)))
 |#
 
-(is (= 1 1))
+(pass)
 
   )
 
@@ -170,14 +170,20 @@ we chose to make-system with import-symbols-at-startup nil"))
             (progn
               (let ((*system-table* (get-test-table t)))
       
+                (signals (asdf/session:FORMATTED-SYSTEM-DEFINITION-ERROR
+                          "Since the lib-helper-test-system is not loaded yet, setup-packages 
+should throw an error")
+                  (setup-packages (get-test-hierarchy)))))
+
+#|
                 (handler-case
                     (setup-packages (get-test-hierarchy))
                   (error (c)
                     (setf setup-packages-error t)))
 
-                (is (eq t setup-packages-error) "Since the lib-helper-test-system is not loaded
+                (is-true setup-packages-error "Since the lib-helper-test-system is not loaded
 yet, setup-packages should throw an error")))
-
+|#
           ;; cleanup for the test
           (delete-target-packages))))
 
