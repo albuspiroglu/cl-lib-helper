@@ -38,9 +38,9 @@ For this purpose, lib-helper creates its package hierarchy with names under LIB.
 
 Since CL itself puts all its standard library in a flat list, it can also benefit from such grouping. That's why I kept a pure CL hierarchy of packages under the names STD.*
 
-
 ## Usage
-<video src='https://youtu.be/NygQTvbkMjY'/>
+
+A screen recording of example usage: https://youtu.be/NygQTvbkMjY
 
 
 A typical usage might be with slime/sly loaded (or using your IDE's completion drop-down), start typing "(lib." on repl and hit tab to get a list of packages starting with name lib., then shortlist and find what you're looking for. Though I'm having trouble running this scenario smoothly.
