@@ -38,6 +38,10 @@
 (defun find-syms (phrase &optional (print-results t))
   (lib~:find-syms phrase *std-package-tree* print-results))
 
+(eval-when (:load-toplevel)
+  (setf (documentation 'find-syms 'function)
+        (documentation 'lib~:find-syms 'function)))
+
 (defun apropos-lib (sub-str &optional (print-results t))
   (lib~:apropos-lib sub-str *std-package-tree* print-results))
 

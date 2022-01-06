@@ -53,12 +53,32 @@
 
 
 (defun find-syms (phrase package-tree &optional (print-results t))
-  "Given a number of words or re-patterns in the phrase (first word for the symbol, others for
-description and package path, find the closest matches within the lib hierarchy.
+  "Find closest matches within std or lib hierarchy.
 
-re-patterns use cl-ppcre.
+INPUTS:
+phrase:
+  a number of words as one string (first word for the symbol, others for
+  description and package path) 
+OR 
+  re-patterns as a list of strings in the phrase, 
 
 print-results: if t (default), print the results instead of returning a list.
+
+OUTPUT: nil or list of results
+
+Note: re-patterns use cl-ppcre.
+
+EXAMPLES:
+(find-syms \"prin\")
+  find symbols with prin in symbol name
+
+(find-syms \"prin io\")
+  Different to previous example, this will do a further filtering by finding symbols that have prin in symbol name, and io in either the package-path name or its documentation.
+
+(find-syms '(\"prin\" \".*\\bio\\b.*\"))
+  Further limiting to previous, filter ones with only complete word io. But one might prefer a shorter and almost equally effective:
+(find-syms \"prin std.io\")
+if they are trying to limit with path name.
 "
   (let ((phrase-regexes (mapcar (lambda (w) (cl-ppcre:create-scanner w
                                                                      :case-insensitive-mode t))

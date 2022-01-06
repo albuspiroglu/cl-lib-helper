@@ -40,6 +40,9 @@ Since CL itself puts all its standard library in a flat list, it can also benefi
 
 
 ## Usage
+<video src='https://youtu.be/NygQTvbkMjY'/>
+
+
 A typical usage might be with slime/sly loaded (or using your IDE's completion drop-down), start typing "(lib." on repl and hit tab to get a list of packages starting with name lib., then shortlist and find what you're looking for. Though I'm having trouble running this scenario smoothly.
 
 Or type "(lib:" and see the list of items in that group in a dropdown.

@@ -88,9 +88,10 @@
 
 
 (defun match-with-symbol (phrase-regexes lib-symbol)
-  "Return true if any expression in phrase-regexes matches the symbol name AND
+  "Return true if first expression in phrase-regexes matches the symbol name AND
 all the rest in phrase-regexes match the symbol's full-description (which
-includes hierarchy path along with all namespace descriptions)."
+includes hierarchy path along with all symbol-namespace descriptions, i.e. 
+function description + variable description + class + method-combination etc.)."
   (let* ((sym-name (sym-name lib-symbol))
          (desc (full-desc lib-symbol)))
     (and

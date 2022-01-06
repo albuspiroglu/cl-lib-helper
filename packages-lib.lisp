@@ -22,6 +22,7 @@
   (delete-system-aux))
 
 (defun delete-this-hierarchy ()
+  "Delete all packages and symbols defined by hierarchy lib:"
   (delete-hierarchy *lib-package-tree*))
 
 (defun get-package-names ()
@@ -35,6 +36,10 @@
 
 (defun find-syms (phrase &optional (print-results t))
   (lib~:find-syms phrase *lib-package-tree* print-results))
+
+(eval-when (:load-toplevel)
+  (setf (documentation 'find-syms 'function)
+        (documentation 'lib~:find-syms 'function)))
 
 (defun apropos-lib (sub-str &optional (print-results t))
   (lib~:apropos-lib sub-str *lib-package-tree* print-results))
