@@ -134,7 +134,7 @@ slot names, then a reduction in this set will give us a confident result."
       (filter-external-syms names pkg))))
 
 
-(defconstant +skipped-classes-in-check+
+(defvar *skipped-classes-in-check*
   (list (find-class 'standard-object)
         (find-class t)
         #+lispworks (find-class 'clos::dependee-mixin)
@@ -145,7 +145,7 @@ slot names, then a reduction in this set will give us a confident result."
 
 (defun get-class-methods (class &optional (generic-functions nil))
   (labels ((%in-skipped-classes (c)
-             (member c +skipped-classes-in-check+))
+             (member c *skipped-classes-in-check*))
 
            (%subclassp (sub parent-tree)
              (find sub

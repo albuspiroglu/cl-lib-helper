@@ -1,8 +1,8 @@
 
-(defpackage lib-helper-asd
+(defpackage #:lib-helper-asd
   (:use :cl :asdf))
 
-(in-package :lib-helper-asd)
+(in-package #:lib-helper-asd)
 
 (defsystem "lib-helper"
   :description "Reorganise existing symbols in standard and third party libs to common hierarchical packages."
