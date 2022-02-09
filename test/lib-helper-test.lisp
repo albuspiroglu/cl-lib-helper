@@ -170,7 +170,7 @@ we chose to make-system with import-symbols-at-startup nil"))
             (progn
               (let ((*system-table* (get-test-table t)))
       
-                (signals (asdf/session:FORMATTED-SYSTEM-DEFINITION-ERROR
+                (signals simple-error #-(and)(asdf/session:FORMATTED-SYSTEM-DEFINITION-ERROR
                           "Since the lib-helper-test-system is not loaded yet, setup-packages 
 should throw an error")
                   (setup-packages (get-test-hierarchy)))))

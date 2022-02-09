@@ -11,7 +11,8 @@
   :maintainer "Albus M Piroglu <mattapiroglu@gmail.com>"
   :licence "MIT"
   :depends-on ("cl-ppcre"
-               "closer-mop")
+               "closer-mop"
+               "alexandria" "iterate" "lil" "cl-containers")
 
   :components
   ((:file "package")

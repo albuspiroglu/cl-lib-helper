@@ -117,7 +117,7 @@ orig-pkg: is of type origin-package"
         ;; asdf isn't happy about loading other systems during a load operation
         ;; and since we're currently loading lib-helper, don't asdf:load
         ;; the system and just tell the user what to do & give up.
-        (unless (or (asdf-system-loaded (containing-system orig-pkg))
+        (unless (or (asdf-system-loaded (system-name (containing-system orig-pkg)))
                     (find-package (pkg-name orig-pkg)))
           (error "=========A symbol is exported from system ~a, but it is currently
 not loaded. Either load the system before lib-helper, or remove its flag to
