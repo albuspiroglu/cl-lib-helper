@@ -27,7 +27,8 @@
 ;;                          nil: if you don't want to import the system's symbols yet,
 ;;                                 regardless of whether system is loaded. Each exported
 ;;                                 symbol of the system will have a function with same name + ~
-;;                                 and when called will asdf:load-system the system and
+;;                                 and when any one of the symbols is called, it will
+;;                                 asdf:load-system the system and
 ;;                                 make all symbols of the system available.
 (let ((system-table '(("alexandria" t)
                       ("asdf" t)

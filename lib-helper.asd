@@ -12,7 +12,10 @@
   :licence "MIT"
   :depends-on ("cl-ppcre"
                "closer-mop"
-               "alexandria" "iterate" "lil" "cl-containers")
+               "alexandria"
+               "iterate"
+               ;"lil"
+               "cl-containers")
 
   :components
   ((:file "package")
@@ -22,8 +25,8 @@
     :components ((:file "convert"
                   :description "Generic function for conversion between types"))
 
-    :description "Generics are where the defgeneric forms reside. Then the specialisations,
-                  i.e. defmethods are defined for each related type, under types module.")
+    :description "Generics are where the defgeneric forms for multiple types reside. Then the
+                  specialisations, i.e. defmethods are defined for each related type, under types module.")
 
    (:module types
     :depends-on ("generics")
@@ -120,7 +123,7 @@
          (symbol-count (symbol-function (find-symbol "SYMBOL-COUNT" plib)))
          (add-to-package-lists (symbol-function (find-symbol "ADD-TO-PACKAGE-LISTS" plib))))
     (funcall setup-packages lib-package-tree)
-    (format t "~&=====Loaded lib:*, total ~a symbols.=====~%"
+    (format t "~&====Loaded lib:*, total ~a symbols.====~%"
             (funcall symbol-count lib-package-tree))
     (funcall add-to-package-lists lib-package-tree)))
 

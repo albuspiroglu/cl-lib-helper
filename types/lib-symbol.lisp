@@ -51,22 +51,19 @@
 (defun all-elements-are-origin-packages (lst) (every #'origin-packagep lst))
 
 (deftype list-of-origin-packages ()
-  `(and (satisfies listp)
-        (satisfies all-elements-are-origin-packages)))
+  `(and list (satisfies all-elements-are-origin-packages)))
 
 (defun lib-symbolp (obj) (typep obj 'lib-symbol))
 
 (defun all-elements-are-lib-symbols (lst) (every #'lib-symbolp lst))
 
 (deftype list-of-lib-symbols ()
-  `(and (satisfies listp)
-        (satisfies all-elements-are-lib-symbols)))
+  `(and list (satisfies all-elements-are-lib-symbols)))
 
 (defun all-elements-are-symbols (lst) (every #'symbolp lst))
 
 (deftype list-of-symbols ()
-  `(and (satisties listp)
-        (satisfies all-elements-are-symbols)))
+  `(and list (satisfies all-elements-are-symbols)))
 
 
 (defun find-lib-aux (search-closure package-tree &optional (print-results t))

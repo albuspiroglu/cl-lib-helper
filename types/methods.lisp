@@ -28,8 +28,7 @@
 (defun all-elements-are-method-details (lst) (every #'method-detailp lst))
 
 (deftype list-of-method-details ()
-  `(and (satisfies listp)
-        (satisfies all-elements-are-method-details)))
+  `(and list (satisfies all-elements-are-method-details)))
 
 (defclass gf-tree ()
   ((gf :initarg :gf
