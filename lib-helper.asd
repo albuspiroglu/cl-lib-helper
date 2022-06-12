@@ -14,7 +14,9 @@
                "closer-mop"
                "alexandria"
                "iterate"
-               ;"lil"
+               ;; below is disabled because abcl cannot load lil
+               ;; if you want it, uncomment below and change "lil" nil to "lil" t in known-libs.lisp
+               ;;"lil"  
                "cl-containers")
 
   :components

@@ -120,8 +120,8 @@ orig-pkg: is of type origin-package"
         (unless (or (asdf-system-loaded (system-name (containing-system orig-pkg)))
                     (find-package (pkg-name orig-pkg)))
           (error "=========A symbol is exported from system ~a, but it is currently
-not loaded. Either load the system before lib-helper, or remove its flag to
-import-symbols-at-startup in known-libs.lisp.~%"
+not loaded in your system. Either load the system before lib-helper, with asdf or ql, 
+typically in your lisp startup file, or change its flag to import-symbols-at-startup to nil in known-libs.lisp.~%"
                  (containing-system orig-pkg)))
         (setf (system-loaded (containing-system orig-pkg))
               t)

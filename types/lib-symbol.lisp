@@ -176,8 +176,8 @@ Intern a symbol, and return that symbol name (package relative).
          (orig-pkg (nth sym-cnt (origin-packages lib-sym)))
          (from-package (find-package (pkg-name orig-pkg))))
 
-    (unless from-package
-      (error "lazy-intern: package ~a not found.~%" (pkg-name orig-pkg)))
+;;    (unless from-package
+;;      (error "lazy-intern: package ~a not found.~%" (pkg-name orig-pkg)))
 
     (if (system-loaded (containing-system orig-pkg))
         (intern-now new-sym-name
