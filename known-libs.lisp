@@ -15,9 +15,7 @@
          key: system-name,
          val: system object")  
 
-;; The libs defined below are added to the *system-table* hash-table.
-;; *system-table* was created in home-package.lisp, and is populated here
-;; from the lexical list system-table below.
+;; The libs defined below are added to the *system-table* hash-table (defined above)
 ;;
 ;; Add each system as: (string t/nil)
 ;;   where first item is: system-name (lower-case)

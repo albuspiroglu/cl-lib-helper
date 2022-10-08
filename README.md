@@ -38,12 +38,33 @@ For this purpose, lib-helper creates its package hierarchy with names under LIB.
 
 Since CL itself puts all its standard library in a flat list, it can also benefit from such grouping. That's why I kept a pure CL hierarchy of packages under the names STD.*
 
+## Installation
+
+### Quicklisp
+
+(ql:quickload "lib-helper")
+
+### ASDF
+
+First, git clone this repo to your computer
+
+> git clone https://github.com/albuspiroglu/cl-lib-helper.git
+
+Then make asdf find the new system. One way is to create/edit a conf file in ~/.config/common-lisp/source-registry.conf.d/some.conf and add this line:
+(:directory "path-to-cl-lib-helper-download/")
+
+And on your REPL:
+
+(asdf:clear-source-registry)
+(asdf:load-system "lib-helper")
+
+
 ## Usage
 
 A screen recording of example usage: https://youtu.be/NygQTvbkMjY
 
 
-A typical usage might be with slime/sly loaded (or using your IDE's completion drop-down), start typing "(lib." on repl and hit tab to get a list of packages starting with name lib., then shortlist and find what you're looking for. Though I'm having trouble running this scenario smoothly.
+A typical usage might be with slime/sly loaded (or using your IDE's completion drop-down), start typing "(lib." on repl and hit tab to get a list of packages starting with name lib., then shortlist and find what you're looking for. 
 
 Or type "(lib:" and see the list of items in that group in a dropdown.
 
@@ -154,7 +175,28 @@ If you change lib-defs.lisp or std-defs.lisp and want to update your current lis
     (asdf:load-system :lib-helper)
 
 ## Implementations tested
-Working for: sbcl2.1, clisp 2.49, lispworks 7.1
+Working for: sbcl2.1 / sbcl2.2, clisp 2.49, lispworks 7.1, abcl 1.8
+
+## Extending / Hacking
+
+### Disabling/removing a system from lib hierarchy
+
+Edit known-libs.lisp, and find the let form that populates the \*system-table\*. If any of the system isn't loaded on your lisp-image, change the t to a nil for that system. This will create symbols~ for that system in the hierarchy, but won't try finding the corresponding system. If you don't want any of the system symbols in the hierarchy, then comment-out / remove that system's line there.
+
+### Adding your local packages / libraries
+
+If you want to add you own or favorite system in the hierarchy, you can use the helper function to generate the form you need. An example usage is in test/dev-help.lisp, where we call generate-system-symbols for two system and write the output to a file:
+
+(with-open-file (f "temp-defs.lisp~" :direction :output :if-exists :supersede)
+    (generate-system-symbols "cl-ppcre" "LIB.STR"
+                             '(("CL-PPCRE" "ppcre"))
+                             f)))
+
+Then you've got two options:
+
+1. If you want to keep the changes for your own use, put the additions to user-lib-defs.lisp. This file is for local user extensions.
+2. If you want to share the changes with a pull request, append the output to lib-defs.lisp, to variable \*lib-package-tree\*
+
 
 ## Contributing
 The complete hierarchy is contained in a tree in either lib-defs.lisp (std + 3rd party) or std-defs.lisp (ansi symbols only). If you want to change / add libs, modifying these lists will be enough.
@@ -187,13 +229,17 @@ The complete hierarchy is contained in a tree in either lib-defs.lisp (std + 3rd
     (queue:\<fifo-queue> ...)
     (collection:conj ...)
 
-
 ## Improvement ideas
 If you have ideas, I'll be more than
 happy to collaborate as time allows. One thing worth pursuing might be
 hierarchical packages (as is seen in some implementations).
 
 ## History
+### [2022-10-08]
+* Some fixes to load cleanly with sbcl. Also the library is now on quicklisp.
+* Facility to add user's local definitions. Add them to user-lib-defs.lisp. Details in Hacking / Extending section above, in addition
+to code comments in the same file.
+
 ### [2021-12-21]
 Major code restructuring. Looking at the lib-helper.asd should make it possible to understand the complete project, or at least help with it. Classes improved & separated, with additional contextual separations.
 

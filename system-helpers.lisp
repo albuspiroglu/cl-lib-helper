@@ -144,6 +144,8 @@ slot names, then a reduction in this set will give us a confident result."
         ))
 
 (defun get-class-methods (class &optional (generic-functions nil))
+  "Return all methods in the current lisp image which act on class type or its parent types, i.e.
+have parameters of type class or any of class' parents."
   (labels ((%in-skipped-classes (c)
              (member c *skipped-classes-in-check*))
 
@@ -211,10 +213,20 @@ packages: list of packages to import from and to (\"package-from\" \"package-to\
           the user should manually choose a subset that the symbols will be imported
           from, and pass them here.
 
-e.g. given call: (generate-system-symbols \"lil\" \"LIB.CONT\"
-                                          \"(\"LIL/PURE/HASH-TABLE\"
-                                            \"LIL/INTERFACE/ORDER\")
-this function returns:
+example calls:
+
+  (with-open-file (f \"temp-defs.lisp~\" :direction :output :if-exists :supersede)
+    (generate-system-symbols \"lil\" \"LIB.CONT\"
+                             '((\"LIL/CORE/ALL\" \"LIL.CORE\")
+                               (\"LIL/INTERFACE/ALL\" \"LIL.INTERFACE\"))
+                             f))
+
+  (with-open-file (f \"temp-defs.lisp~\" :direction :output :if-exists :supersede)
+    (generate-system-symbols \"cl-ppcre\" \"LIB.STR\"
+                             '((\"CL-PPCRE\" \"ppcre\"))
+                             f))
+
+an example return output:
 
 (\"LIB.CONT.LIL/PURE/HASH-TABLE\" \"Package: LIL/PURE/HASH-TABLE\"
      ((\"<HASH-TABLE>\" (\"lil\" \"LIL/PURE/HASH-TABLE\"))

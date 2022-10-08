@@ -131,7 +131,7 @@ OUTPUTS: nil
     (add-sub-packages p to-pkg)))
 
 
-(defun setup-packages (package-tree)
+(defun setup-packages (package-tree &key ignore-errors)
   "Creates and defines packages in package-tree."
   (flet ((%create-packages ()
            "Create each package, without any detail such as import, use (except use :cl) etc."
@@ -149,7 +149,7 @@ OUTPUTS: nil
                    (push (path branch) failed-packages)))
 
                ;; We're manually creating the top-level package, that's why skip one error.
-               (when (> (length failed-packages) 1)
+               (when (and (not ignore-errors) (> (length failed-packages) 1))
                  (format t "Failed to create packages: ~{~a, ~}.~%" failed-packages))))))
 
     (%create-packages)

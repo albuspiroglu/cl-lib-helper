@@ -12,7 +12,7 @@
            "PACKAGES-AUX"
            "*SYSTEM-TABLE*"
            "SYMBOL-COUNT"
-           "GENERATE-PACKAGE-SYMBOLS"
+           "GENERATE-SYSTEM-SYMBOLS"
            "APROPOS-LIB"
            "FIND-SYMS"))
 

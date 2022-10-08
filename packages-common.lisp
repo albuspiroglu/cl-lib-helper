@@ -3,23 +3,28 @@
 
 
 (defun delete-system-aux ()
-  (dolist (pd lib~:*hierarchies*)
-    (delete-hierarchy pd))
+  (delete-packages (remove-duplicates
+                    (mapcar #'path 
+                            (reduce #'append 
+                                    (mapcar #'branches *hierarchies*)))
+                    :test 'equal))
   (delete-package "LIB~")
   (asdf:clear-system :lib-helper))
 
-
 (defun delete-hierarchy (hierarchy)
+  (delete-packages (remove-duplicates
+                    (mapcar #'path (branches hierarchy)))))
+
+(defun delete-packages (packages)
   (let (pkgs-error)
-    (dolist (p (branches hierarchy))
+    (dolist (p packages)
       (handler-case
-          (delete-package (path p))
+          (delete-package p)
         (error (c)
           (declare (ignore c))
-          (push (path p) pkgs-error))))
+          (push p pkgs-error))))
     (when pkgs-error
-      (format t "For lib hierarchy ~A:~%  Error deleting packages ~{~a, ~}.~%" 
-              hierarchy 
+      (format t "Error deleting packages ~{~a, ~}.~%" 
               pkgs-error))))
 
 

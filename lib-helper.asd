@@ -18,7 +18,7 @@
                ;; if you want it, uncomment below and change "lil" nil to "lil" t in known-libs.lisp
                ;;"lil"  
                "cl-containers")
-
+ 
   :components
   ((:file "package")
 
@@ -75,6 +75,7 @@
     :components
     ((:file "std-defs")
      (:file "packages-std" :depends-on ("std-defs")))
+
     :perform (load-op :after (op std-lib)
                       (lib-helper-asd::prepare-std-libs)))
 
@@ -83,7 +84,9 @@
     :depends-on (packages-common)
     :components
     ((:file "lib-defs")
-     (:file "packages-lib" :depends-on ("lib-defs")))
+     (:file "user-lib-defs")
+     (:file "packages-lib" :depends-on ("lib-defs" "user-lib-defs")))
+
     :perform (load-op :after (op libs)
                       (lib-helper-asd::prepare-libs))))
 
@@ -120,14 +123,18 @@
 
 (defun prepare-libs ()
   (let* ((plib (find-package "LIB~"))
-         (setup-packages (symbol-function (find-symbol "SETUP-PACKAGES" plib)))
-         (lib-package-tree (symbol-value (find-symbol "*LIB-PACKAGE-TREE*" plib)))
-         (symbol-count (symbol-function (find-symbol "SYMBOL-COUNT" plib)))
+         (setup-packages    (symbol-function (find-symbol "SETUP-PACKAGES" plib)))
+         (lib-package-tree  (symbol-value (find-symbol "*LIB-PACKAGE-TREE*" plib)))
+         (user-package-tree (symbol-value (find-symbol "*USER-PACKAGE-TREE*" plib)))
+         (symbol-count      (symbol-function (find-symbol "SYMBOL-COUNT" plib)))
          (add-to-package-lists (symbol-function (find-symbol "ADD-TO-PACKAGE-LISTS" plib))))
     (funcall setup-packages lib-package-tree)
+    (funcall setup-packages user-package-tree :ignore-errors t)
     (format t "~&====Loaded lib:*, total ~a symbols.====~%"
-            (funcall symbol-count lib-package-tree))
-    (funcall add-to-package-lists lib-package-tree)))
+            (+ (funcall symbol-count lib-package-tree)
+               (funcall symbol-count user-package-tree)))
+    (funcall add-to-package-lists lib-package-tree)
+    (funcall add-to-package-lists user-package-tree)))
 
 #|
 would writing a macro to allow the following syntax be worthwhile?
