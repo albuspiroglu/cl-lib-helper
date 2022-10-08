@@ -42,7 +42,7 @@ Since CL itself puts all its standard library in a flat list, it can also benefi
 
 ### Quicklisp
 
-(ql:quickload "lib-helper")
+    (ql:quickload "lib-helper")
 
 ### ASDF
 
@@ -51,13 +51,15 @@ First, git clone this repo to your computer
 > git clone https://github.com/albuspiroglu/cl-lib-helper.git
 
 Then make asdf find the new system. One way is to create/edit a conf file in ~/.config/common-lisp/source-registry.conf.d/some.conf and add this line:
-(:directory "path-to-cl-lib-helper-download/")
+
+    (:directory "path-to-cl-lib-helper-download/")
 
 And on your REPL:
 
+```
 (asdf:clear-source-registry)
 (asdf:load-system "lib-helper")
-
+```
 
 ## Usage
 
@@ -187,10 +189,12 @@ Edit known-libs.lisp, and find the let form that populates the \*system-table\*.
 
 If you want to add you own or favorite system in the hierarchy, you can use the helper function to generate the form you need. An example usage is in test/dev-help.lisp, where we call generate-system-symbols for two system and write the output to a file:
 
+```
 (with-open-file (f "temp-defs.lisp~" :direction :output :if-exists :supersede)
     (generate-system-symbols "cl-ppcre" "LIB.STR"
                              '(("CL-PPCRE" "ppcre"))
                              f)))
+```
 
 Then you've got two options:
 
