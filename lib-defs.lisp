@@ -357,20 +357,20 @@
        ("HASH-TABLE-SYNCHRONIZED-P" (NIL "CL"))
        ))
      ("LIB.CONT.ALIST" "Container alist"
-      (("ASSOC-IF" (NIL "CL"))
+      (("ACONS" (NIL "CL"))
+       ("ASSOC-IF" (NIL "CL"))
        ("ASSOC-IF-NOT" (NIL "CL"))
+       ("ASSOC" (NIL "CL"))
+       ("PAIRLIS" (NIL "CL"))
        ("RASSOC" (NIL "CL"))
        ("RASSOC-IF" (NIL "CL"))
-       ("ASSOC" (NIL "CL"))
        ("RASSOC-IF-NOT" (NIL "CL"))
        ("COPY-ALIST" (NIL "CL"))
-
        ("ALIST-PLIST" ("alexandria" "ALEXANDRIA"))
        ("PLIST-ALIST" ("alexandria" "ALEXANDRIA"))
        ))
      ("LIB.CONT.PLIST" "Container plist"
-      (("PAIRLIS" (NIL "CL"))
-       ("GETF" (NIL "CL"))
+      (("GETF" (NIL "CL"))
        ("REMPROP" (NIL "CL"))
        ("REMF" (NIL "CL"))
        ("SYMBOL-PLIST" (NIL "CL"))
@@ -7033,6 +7033,8 @@
 
 
        ))
+     ("LIB.MATH" "Math"
+      ())
      ("LIB.MATH.NUM.LIMITS" "Math numeric limits"
       (("SHORT-FLOAT-EPSILON" (NIL "CL"))
        ("SINGLE-FLOAT-NEGATIVE-EPSILON" (NIL "CL"))
@@ -7191,22 +7193,6 @@
        ("LOGEQV" (NIL "CL"))
        ("LOGAND" (NIL "CL"))
        ))
-     ("LIB.MATH" "Math"
-      ())
-     ("LIB.MATH.TRIG" "Trigonometry"
-      (("SIN" (NIL "CL"))
-       ("TANH" (NIL "CL"))
-       ("ATAN" (NIL "CL"))
-       ("ATANH" (NIL "CL"))
-       ("ASIN" (NIL "CL"))
-       ("TAN" (NIL "CL"))
-       ("ASINH" (NIL "CL"))
-       ("ACONS" (NIL "CL"))
-       ("ACOSH" (NIL "CL"))
-       ("COS" (NIL "CL"))
-       ("ACOS" (NIL "CL"))
-
-       ))
      ("LIB.MATH.PROB" "Probability"
       (("RANDOM" (NIL "CL"))
        ("MAKE-RANDOM-STATE" (NIL "CL"))
@@ -7223,8 +7209,20 @@
        ("VARIANCE" ("alexandria" "ALEXANDRIA"))
 
        ))
-
-
+     ("LIB.MATH.TRIG" "Trigonometry"
+      (("SIN" (NIL "CL"))
+       ("SINH" (NIL "CL"))
+       ("TANH" (NIL "CL"))
+       ("ATAN" (NIL "CL"))
+       ("ATANH" (NIL "CL"))
+       ("ASIN" (NIL "CL"))
+       ("TAN" (NIL "CL"))
+       ("ASINH" (NIL "CL"))
+       ("ACOSH" (NIL "CL"))
+       ("COS" (NIL "CL"))
+       ("COSH" (NIL "CL"))
+       ("ACOS" (NIL "CL"))
+       ))
      ("LIB.MATH.FUNC" "Math functions"
       (("SQRT" (NIL "CL"))
        ("CONJUGATE" (NIL "CL"))
@@ -7232,7 +7230,6 @@
        ("CEILING" (NIL "CL"))
        ("FLOOR" (NIL "CL"))
        ("LCM" (NIL "CL"))
-       ("SINH" (NIL "CL"))
        ("FROUND" (NIL "CL"))
        ("RATIO" (NIL "CL"))
        ("FFLOOR" (NIL "CL"))
@@ -7240,7 +7237,6 @@
        ("EXP" (NIL "CL"))
        ("ISQRT" (NIL "CL"))
        ("PI" (NIL "CL"))
-       ("COSH" (NIL "CL"))
        ("ROUND" (NIL "CL"))
        ("MIN" (NIL "CL"))
        ("SIGNUM" (NIL "CL"))
