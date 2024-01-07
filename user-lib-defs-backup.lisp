@@ -54,19 +54,43 @@
      ("LIB.AMP" "My packages" ())
 
      ("LIB.AMP.UTILS" "Package: AMP-UTILS"
-      (
-       
+      (("AMP-UTILS:=APPLY" ("amp-utils" "AMP-UTILS"))
+       ("=BIND" ("amp-utils" "AMP-UTILS"))
+       ("=DEFUN" ("amp-utils" "AMP-UTILS"))
+       ("=FUNCALL" ("amp-utils" "AMP-UTILS"))
+       ("=LAMBDA" ("amp-utils" "AMP-UTILS"))
+       ("=VALUES" ("amp-utils" "AMP-UTILS"))
+       ("AAND" ("amp-utils" "AMP-UTILS"))
+       ("ACOND" ("amp-utils" "AMP-UTILS"))
+       ("ACOND2" ("amp-utils" "AMP-UTILS"))
+       ("AFTER" ("amp-utils" "AMP-UTILS"))
+       ("AIF" ("amp-utils" "AMP-UTILS"))
+       ("AIF2" ("amp-utils" "AMP-UTILS"))
+       ("ALAMBDA" ("amp-utils" "AMP-UTILS"))
+       ("ALWAYS" ("amp-utils" "AMP-UTILS"))
+       ("AWHEN" ("amp-utils" "AMP-UTILS"))
+       ("AWHEN2" ("amp-utils" "AMP-UTILS"))
+       ("AWHILE" ("amp-utils" "AMP-UTILS"))
+       ("AWHILE2" ("amp-utils" "AMP-UTILS"))
+       ("BEFORE" ("amp-utils" "AMP-UTILS"))
        ("BEST" ("amp-utils" "AMP-UTILS"))
        ("CONJOIN" ("amp-utils" "AMP-UTILS"))
        ("CONT-LEXICAL" ("amp-utils" "AMP-UTILS"))
        ("CURRENT-SYMBOLS" ("amp-utils" "AMP-UTILS"))
        ("CURRY" ("amp-utils" "AMP-UTILS"))
        ("DEFLEXICAL" ("amp-utils" "AMP-UTILS"))
+       ("DEFMACRO!" ("amp-utils" "AMP-UTILS"))
+       ("DEFMACRO/G!" ("amp-utils" "AMP-UTILS"))
+       ("DEFUN-IN-PACKAGE" ("amp-utils" "AMP-UTILS"))
+       ("DEFUNQ" ("amp-utils" "AMP-UTILS"))
        ("DISJOIN" ("amp-utils" "AMP-UTILS"))
        ("DO-FILE" ("amp-utils" "AMP-UTILS"))
        ("DUPLICATE" ("amp-utils" "AMP-UTILS"))
        ("FACT" ("amp-utils" "AMP-UTILS"))
        ("FILTER" ("amp-utils" "AMP-UTILS"))
+       ("FLATTEN" ("amp-utils" "AMP-UTILS"))
+       ("FOR" ("amp-utils" "AMP-UTILS"))
+       ("G!-SYMBOL-P" ("amp-utils" "AMP-UTILS"))
        ("GET-NEW-ITEM-NAME" ("amp-utils" "AMP-UTILS"))
        ("GET-NUMS" ("amp-utils" "AMP-UTILS"))
        ("GET-STATS" ("amp-utils" "AMP-UTILS"))
@@ -88,6 +112,7 @@
        ("MOST" ("amp-utils" "AMP-UTILS"))
        ("MOSTN" ("amp-utils" "AMP-UTILS"))
        ("NPUSH" ("amp-utils" "AMP-UTILS"))
+       ("O!-SYMBOL-P" ("amp-utils" "AMP-UTILS"))
        ("PMACROEXPAND" ("amp-utils" "AMP-UTILS"))
        ("PMACROEXPAND-1" ("amp-utils" "AMP-UTILS"))
        ("PRINT-OBJECT-TO-STRING" ("amp-utils" "AMP-UTILS"))
@@ -99,49 +124,10 @@
        ("SELF" ("amp-utils" "AMP-UTILS"))
        ("SPLIT-IF" ("amp-utils" "AMP-UTILS"))
        ("STRING-APPEND" ("amp-utils" "AMP-UTILS"))
-       ("STRING-REMOVE-ESCAPES" ("amp-utils" "AMP-UTILS"))
        ("SYMB" ("amp-utils" "AMP-UTILS"))
        ("WHEN-NONE-OF" ("amp-utils" "AMP-UTILS"))
        ("WITH-GENSYMS" ("amp-utils" "AMP-UTILS"))
        ))
-
-     ("LIB.FUN" "Functions"
-      (("=APPLY" ("amp-utils" "AMP-UTILS"))
-       ("=BIND" ("amp-utils" "AMP-UTILS"))
-       ("=DEFUN" ("amp-utils" "AMP-UTILS"))
-       ("=FUNCALL" ("amp-utils" "AMP-UTILS"))
-       ("=LAMBDA" ("amp-utils" "AMP-UTILS"))
-       ("=VALUES" ("amp-utils" "AMP-UTILS"))
-       ("ALWAYS" ("amp-utils" "AMP-UTILS"))
-       ("ALAMBDA" ("amp-utils" "AMP-UTILS"))
-       ("DEFUN-IN-PACKAGE" ("amp-utils" "AMP-UTILS"))
-       ("DEFUNQ" ("amp-utils" "AMP-UTILS"))
-       ))
-
-     ("LIB.LANG.DEFN" "Lang definitions"
-      (
-       ))
-
-     ("LIB.CONT.SEQ.ACCESS" "Search, get/set (element or subset)"
-      (       
-       ("AFTER" ("amp-utils" "AMP-UTILS"))
-       ("BEFORE" ("amp-utils" "AMP-UTILS"))
-
-      ))
-
-     ("LIB.LANG.FLOW" "Lang control flow"
-      (("AAND" ("amp-utils" "AMP-UTILS"))
-       ("ACOND" ("amp-utils" "AMP-UTILS"))
-       ("ACOND2" ("amp-utils" "AMP-UTILS"))
-       ("AIF" ("amp-utils" "AMP-UTILS"))
-       ("AIF2" ("amp-utils" "AMP-UTILS"))
-       ("AWHEN" ("amp-utils" "AMP-UTILS"))
-       ("AWHEN2" ("amp-utils" "AMP-UTILS"))
-       ("AWHILE" ("amp-utils" "AMP-UTILS"))
-       ("AWHILE2" ("amp-utils" "AMP-UTILS"))
-       ("FOR" ("amp-utils" "AMP-UTILS"))
-       ))
-
      ("LIB.OS.PATH" "Package: AMP-PATHNAMES"
       (("DIRECTORY-PATHNAMEP" ("amp-utils" "AMP-PATHNAMES"))
        ("DIRECTORYP" ("amp-utils" "AMP-PATHNAMES"))
