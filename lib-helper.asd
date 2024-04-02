@@ -82,10 +82,11 @@
    (:module libs
     :pathname ""
     :depends-on (packages-common)
+    :serial t
     :components
     ((:file "lib-defs")
      (:file "user-lib-defs")
-     (:file "packages-lib" :depends-on ("lib-defs" "user-lib-defs")))
+     (:file "packages-lib"))
 
     :perform (load-op :after (op libs)
                       (lib-helper-asd::prepare-libs))))

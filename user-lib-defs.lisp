@@ -6,7 +6,7 @@
 ;; generate-system-symbols call for details.
 ;;
 ;; First item in the tree is skipped, and a package corresponding
-;; it is expected to exist. It is used to name the hierarchy object.
+;; it, is expected to exist. It is used to name the hierarchy object.
 ;;
 ;; Each package is defined as:
 ;;   (Package-name Description Symbol-List)
@@ -50,119 +50,11 @@
 (defvar *user-package-tree*
   (convert
    <lib-hierarchy> <list>
-   '(("LIB" "Top level again" ())
-     ("LIB.AMP" "My packages" ())
+   '(
+     ;; keep this top level here as well, so that your sub package will be a .my-package in lib:
+     ("LIB" "Top level again" ())
+     ;; your list will come here
 
-     ("LIB.AMP.UTILS" "Package: AMP-UTILS"
-      (
-       
-       ("BEST" ("amp-utils" "AMP-UTILS"))
-       ("CONJOIN" ("amp-utils" "AMP-UTILS"))
-       ("CONT-LEXICAL" ("amp-utils" "AMP-UTILS"))
-       ("CURRENT-SYMBOLS" ("amp-utils" "AMP-UTILS"))
-       ("CURRY" ("amp-utils" "AMP-UTILS"))
-       ("DEFLEXICAL" ("amp-utils" "AMP-UTILS"))
-       ("DISJOIN" ("amp-utils" "AMP-UTILS"))
-       ("DO-FILE" ("amp-utils" "AMP-UTILS"))
-       ("DUPLICATE" ("amp-utils" "AMP-UTILS"))
-       ("FACT" ("amp-utils" "AMP-UTILS"))
-       ("FILTER" ("amp-utils" "AMP-UTILS"))
-       ("GET-NEW-ITEM-NAME" ("amp-utils" "AMP-UTILS"))
-       ("GET-NUMS" ("amp-utils" "AMP-UTILS"))
-       ("GET-STATS" ("amp-utils" "AMP-UTILS"))
-       ("GROUP" ("amp-utils" "AMP-UTILS"))
-       ("IT" ("amp-utils" "AMP-UTILS"))
-       ("LIST-PACKAGE-OWNED-SYMBOLS" ("amp-utils" "AMP-UTILS"))
-       ("LREC" ("amp-utils" "AMP-UTILS"))
-       ("MAP->" ("amp-utils" "AMP-UTILS"))
-       ("MAP-INT" ("amp-utils" "AMP-UTILS"))
-       ("MAP-LAZY" ("amp-utils" "AMP-UTILS"))
-       ("MAP0-N" ("amp-utils" "AMP-UTILS"))
-       ("MAP1-N" ("amp-utils" "AMP-UTILS"))
-       ("MAPA-B" ("amp-utils" "AMP-UTILS"))
-       ("MAPCARS" ("amp-utils" "AMP-UTILS"))
-       ("MAPPEND" ("amp-utils" "AMP-UTILS"))
-       ("MEMOIZE" ("amp-utils" "AMP-UTILS"))
-       ("MKLIST" ("amp-utils" "AMP-UTILS"))
-       ("MKSTR" ("amp-utils" "AMP-UTILS"))
-       ("MOST" ("amp-utils" "AMP-UTILS"))
-       ("MOSTN" ("amp-utils" "AMP-UTILS"))
-       ("NPUSH" ("amp-utils" "AMP-UTILS"))
-       ("PMACROEXPAND" ("amp-utils" "AMP-UTILS"))
-       ("PMACROEXPAND-1" ("amp-utils" "AMP-UTILS"))
-       ("PRINT-OBJECT-TO-STRING" ("amp-utils" "AMP-UTILS"))
-       ("PRUNE" ("amp-utils" "AMP-UTILS"))
-       ("PULL" ("amp-utils" "AMP-UTILS"))
-       ("RCURRY" ("amp-utils" "AMP-UTILS"))
-       ("READ2" ("amp-utils" "AMP-UTILS"))
-       ("RMAPCAR" ("amp-utils" "AMP-UTILS"))
-       ("SELF" ("amp-utils" "AMP-UTILS"))
-       ("SPLIT-IF" ("amp-utils" "AMP-UTILS"))
-       ("STRING-APPEND" ("amp-utils" "AMP-UTILS"))
-       ("STRING-REMOVE-ESCAPES" ("amp-utils" "AMP-UTILS"))
-       ("SYMB" ("amp-utils" "AMP-UTILS"))
-       ("WHEN-NONE-OF" ("amp-utils" "AMP-UTILS"))
-       ("WITH-GENSYMS" ("amp-utils" "AMP-UTILS"))
-       ))
-
-     ("LIB.FUN" "Functions"
-      (("=APPLY" ("amp-utils" "AMP-UTILS"))
-       ("=BIND" ("amp-utils" "AMP-UTILS"))
-       ("=DEFUN" ("amp-utils" "AMP-UTILS"))
-       ("=FUNCALL" ("amp-utils" "AMP-UTILS"))
-       ("=LAMBDA" ("amp-utils" "AMP-UTILS"))
-       ("=VALUES" ("amp-utils" "AMP-UTILS"))
-       ("ALWAYS" ("amp-utils" "AMP-UTILS"))
-       ("ALAMBDA" ("amp-utils" "AMP-UTILS"))
-       ("DEFUN-IN-PACKAGE" ("amp-utils" "AMP-UTILS"))
-       ("DEFUNQ" ("amp-utils" "AMP-UTILS"))
-       ))
-
-     ("LIB.LANG.DEFN" "Lang definitions"
-      (
-       ))
-
-     ("LIB.CONT.SEQ.ACCESS" "Search, get/set (element or subset)"
-      (       
-       ("AFTER" ("amp-utils" "AMP-UTILS"))
-       ("BEFORE" ("amp-utils" "AMP-UTILS"))
-
-      ))
-
-     ("LIB.LANG.FLOW" "Lang control flow"
-      (("AAND" ("amp-utils" "AMP-UTILS"))
-       ("ACOND" ("amp-utils" "AMP-UTILS"))
-       ("ACOND2" ("amp-utils" "AMP-UTILS"))
-       ("AIF" ("amp-utils" "AMP-UTILS"))
-       ("AIF2" ("amp-utils" "AMP-UTILS"))
-       ("AWHEN" ("amp-utils" "AMP-UTILS"))
-       ("AWHEN2" ("amp-utils" "AMP-UTILS"))
-       ("AWHILE" ("amp-utils" "AMP-UTILS"))
-       ("AWHILE2" ("amp-utils" "AMP-UTILS"))
-       ("FOR" ("amp-utils" "AMP-UTILS"))
-       ))
-
-     ("LIB.OS.PATH" "Package: AMP-PATHNAMES"
-      (("DIRECTORY-PATHNAMEP" ("amp-utils" "AMP-PATHNAMES"))
-       ("DIRECTORYP" ("amp-utils" "AMP-PATHNAMES"))
-       ("FILE-EXISTSP" ("amp-utils" "AMP-PATHNAMES"))
-       ("FILEP" ("amp-utils" "AMP-PATHNAMES"))
-       ("GET-UNIQUE-PATH" ("amp-utils" "AMP-PATHNAMES"))
-       ("JOIN-PATHS" ("amp-utils" "AMP-PATHNAMES"))
-       ("LIST-DIRECTORY" ("amp-utils" "AMP-PATHNAMES"))
-       ("PATHNAME-AS-DIRECTORY" ("amp-utils" "AMP-PATHNAMES"))
-       ("PATHNAME-AS-FILE" ("amp-utils" "AMP-PATHNAMES"))
-       ("WALK-DIRECTORY" ("amp-utils" "AMP-PATHNAMES"))
-       ))
-     ("LIB.IO" "Package: AMP-SCRIPTS"
-      (("CREATE-SYMLINKS-TO-ITEMS" ("amp-utils" "AMP-SCRIPTS"))
-       ))
-     ("LIB.REPL.DEV" "Dev helpers" ())
-     ("LIB.REPL.DEV" "Package: AMP-DEV"
-      (("ADD-DATA-TO-FUNCTION" ("amp-utils" "AMP-DEV"))
-       ("DEF-MACRO-TEST" ("amp-utils" "AMP-DEV"))
-       ("DEFCLASS-TEST" ("amp-utils" "AMP-DEV"))
-       ))
 
      ))
   "Names of each package in the hierarchy and their symbols.
